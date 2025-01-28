@@ -140,8 +140,7 @@ const key_override_t **key_overrides = (const key_override_t *[]){
     &alt_w_to_gui_v,
     NULL
 };
-#endi
-f // KEY_OVERRIDE_ENABLE
+#endif // KEY_OVERRIDE_ENABLE
 
 /* ------ */
 /* Layers */
