@@ -27,6 +27,7 @@ enum custom_keycodes {
     UNMARK,
     COPY_TEXT,  
     CUT_TEXT,
+    DEL_TEXT,
     // for Windows
     DEEPL
 };
@@ -69,6 +70,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case CUT_TEXT:
             if (record->event.pressed) {
                 tap_code16(C(KC_X));
+                set_mark_active = false;
+            }
+            break;
+        case DEL_TEXT:
+            if (record->event.pressed) {
+                tap_code16(KC_DEL);
                 set_mark_active = false;
             }
             break;
@@ -176,16 +183,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // see https://github.com/Yowkees/keyball/blob/main/qmk_firmware/keyboards/keyball/lib/keyball/keycodes.md
   [3] = LAYOUT_universal(
     _______  , AML_TO   , AML_I50  , AML_D50  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
-    SSNP_FRE , _______  , _______  , _______  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
-    SSNP_VRT , _______  , _______  , _______  , _______  , _______  ,                                  CPI_D1K  , CPI_D100 , CPI_I100 , CPI_I1K  , KBC_SAVE , KBC_RST  ,
-    SSNP_HOR , _______  , SCRL_DVD , SCRL_DVI , SCRL_MO  , SCRL_TO  , EE_CLR   ,            EE_CLR   , KC_HOME  , KC_PGDN  , KC_PGUP  , KC_END   , _______  , _______  ,
+    _______  , SSNP_FRE , _______  , _______  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
+    _______  , SSNP_VRT , _______  , _______  , _______  , _______  ,                                  CPI_D1K  , CPI_D100 , CPI_I100 , CPI_I1K  , KBC_SAVE , KBC_RST  ,
+    _______  , SSNP_HOR , SCRL_DVD , SCRL_DVI , SCRL_MO  , SCRL_TO  , EE_CLR   ,            EE_CLR   , KC_HOME  , KC_PGDN  , KC_PGUP  , KC_END   , _______  , _______  ,
     QK_BOOT  , _______  , KC_LEFT  , KC_DOWN  , KC_UP    , KC_RGHT  , _______  ,            _______  , KC_BSPC  , _______  , _______  , _______  , _______  , QK_BOOT
   ),
   // Emacs レイヤー (C-)
   [4] = LAYOUT_universal(
     _______  , _______     , _______  , _______  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
     _______  , G(S(KC_F23)), CUT_TEXT , KC_END   , C(KC_R)  , C(KC_T)  ,                                  C(KC_V)  , C(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , _______  ,
-    _______  , KC_HOME     , C(KC_F)  , KC_DEL   , KC_RGHT  , UNMARK   ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  , _______  , _______  ,
+    _______  , KC_HOME     , C(KC_F)  , DEL_TEXT , KC_RGHT  , UNMARK   ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  , _______  , _______  ,
     _______  , G(KC_DOWN)  , OSL(5)   , C(KC_C)  , KC_PGDN  , KC_LEFT  , _______ ,             _______  , KC_DOWN  , KC_ENT   , _______  , _______  , C(KC_Z)  , _______  ,
     _______  , _______     , _______  , _______  , _______  , SET_MARK , _______  ,            _______  , _______  , _______  , _______  , _______  , _______  , _______ 
   ),
