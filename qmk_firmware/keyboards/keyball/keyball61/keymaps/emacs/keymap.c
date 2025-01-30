@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "quantum.h"
 
 enum custom_keycodes {
-    CUT_LINE = SAFE_RANGE,  // cutline as Emacs
+    CUT_LINE = KEYBALL_SAFE_RANGE,
     SET_MARK,   
     UNMARK,
     COPY_TEXT,  
@@ -169,7 +169,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______  , KC_F1    , KC_F2    , KC_F3    , KC_F4    , KC_F5    ,                                  KC_F6    , KC_F7    , KC_F8    , KC_F9    , KC_F10   , KC_F11   ,
     SSNP_FRE , KC_SLSH  , KC_7     , KC_8     , KC_9     , KC_MINS  ,                                  _______  , KC_LEFT  , KC_UP    , KC_RGHT  , _______  , KC_F12   ,
     SSNP_VRT ,S(KC_QUOT), KC_4     , KC_5     , KC_6     ,S(KC_SCLN),                                  KC_PGUP  , KC_BTN1  , KC_DOWN  , KC_BTN2  , KC_BTN3  , _______  ,
-    SSNP_HOR , KC_BSPC  , KC_1     , KC_2     , KC_3     ,S(KC_MINS), S(KC_8)  ,            S(KC_9)  , KC_PGDN  , MS_BTN4  , KC_BTN3  , MS_BTN5  , _______  , _______  ,
+    SSNP_HOR , KC_BSPC  , KC_1     , KC_2     , KC_3     ,S(KC_MINS), S(KC_8)  ,            S(KC_9)  , KC_PGDN  , KC_BTN4  , KC_BTN3  , KC_BTN5  , _______  , _______  ,
     _______  , _______  , KC_0     , KC_DOT   , _______  , _______  , _______  ,             KC_DEL  , _______  , _______  , _______  , _______  , _______  , _______
   ),
   // 自動スクロール・マウス・キーボード設定レイヤー
