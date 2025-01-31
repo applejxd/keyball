@@ -27,7 +27,6 @@ enum custom_keycodes {
     UNMARK,
     COPY_TEXT,  
     CUT_TEXT,
-    DEL_TEXT,
     // for Windows
     DEEPL
 };
@@ -73,10 +72,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 set_mark_active = false;
             }
             break;
-        case DEL_TEXT:
+        case KC_DEL:
             if (record->event.pressed) {
                 set_mark_active = false;
-                register_code(KC_DEL);
             }
             break;
         case KC_LEFT: case KC_RIGHT: case KC_UP: case KC_DOWN: 
@@ -192,7 +190,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [4] = LAYOUT_universal(
     _______  , _______     , _______  , _______  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
     _______  , G(S(KC_F23)), CUT_TEXT , KC_END   , C(KC_R)  , C(KC_T)  ,                                  C(KC_V)  , C(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , _______  ,
-    _______  , KC_HOME     , C(KC_F)  , LT(DEL_TEXT,KC_DEL) , KC_RGHT  , UNMARK   ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  , _______  , _______  ,
+    _______  , KC_HOME     , C(KC_F)  , KC_DEL   , KC_RGHT  , UNMARK   ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  , _______  , _______  ,
     _______  , G(KC_DOWN)  , OSL(5)   , C(KC_C)  , KC_PGDN  , KC_LEFT  , _______ ,             _______  , KC_DOWN  , KC_ENT   , _______  , _______  , C(KC_Z)  , _______  ,
     _______  , _______     , _______  , _______  , _______  , SET_MARK , _______  ,            _______  , _______  , _______  , _______  , _______  , _______  , _______ 
   ),
