@@ -12,8 +12,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have recei
-ved a copy of the GNU General Public License
+You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
@@ -26,9 +25,7 @@ enum custom_keycodes {
     SET_MARK,   
     ABORT,
     COPY_TEXT,  
-    CUT_TEXT,
-    // for Windows
-    DEEPL
+    CUT_TEXT
 };
 
 /* ------ */
@@ -102,26 +99,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             return true;
-        case DEEPL:
-            if (record->event.pressed) {
-                tap_code16(G(KC_R));
-                // wait for moving active window and clear inputs
-                SEND_STRING(SS_DELAY(300));
-                tap_code(KC_DEL);
-                SEND_STRING(
-                    SS_DELAY(100)
-                    // run command
-                    // "\%UserProfile\%/src/windows-setup/bin/deepl.bat"
-                    "powershell -Command "
-                    SS_DELAY(100)
-                    "\"Start-Process (\'https://www.deepl.com/translator#en/ja/\'"
-                    SS_DELAY(100)
-                    " + [uri]::EscapeDataString((Get-Clipboard)))\""
-                    SS_DELAY(100)
-                );
-                tap_code(KC_ENT);
-            }
-            break;
     }
     return true;
 }
