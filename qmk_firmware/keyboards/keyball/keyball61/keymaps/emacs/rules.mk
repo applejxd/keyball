@@ -7,7 +7,7 @@ RGBLIGHT_ENABLE = yes
 KEY_OVERRIDE_ENABLE = yes
 
 # マウスキーに使用するコンボを有効化
-COMBO_ENABLE = no
+COMBO_ENABLE = yes
 
 #---------#
 # 容量節約 #
