@@ -40,8 +40,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #undef LOCKING_RESYNC_ENABLE
 // use 8bit layer state (max 8 layers)
 #define LAYER_STATE_8BIT
+
 // ミュージックモードを無効化
 #define NO_MUSIC_MODE
+// ワンショットキーを無効化
+#undef NO_ACTION_ONESHOT
 
 // RGB LED の機能を無効化
 #undef RGBLIGHT_ANIMATIONS
