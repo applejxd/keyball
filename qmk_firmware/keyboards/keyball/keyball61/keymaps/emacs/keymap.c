@@ -156,6 +156,7 @@ const key_override_t **key_overrides = (const key_override_t *[]){
 /* Combo */
 /* ----- */
 
+#if defined(COMBO_ENABLE) 
 const uint16_t PROGMEM left_click_combo[] = {KC_J, KC_K, COMBO_END};
 const uint16_t PROGMEM right_click_combo[] = {KC_K, KC_L, COMBO_END};
 const uint16_t PROGMEM middle_click_combo[] = {KC_J, KC_L, COMBO_END};
@@ -165,6 +166,7 @@ combo_t key_combos[] = {
     COMBO(right_click_combo, KC_BTN2),
     COMBO(middle_click_combo, KC_BTN3),
 };
+#endif // COMBO_ENABLE
 
 /* ------ */
 /* Layers */
@@ -233,7 +235,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
 #ifdef OLED_ENABLE
 
-#    include "lib/oledkit/oledkit.h"
+#include "lib/oledkit/oledkit.h"
 
 void oledkit_render_info_user(void) {
     keyball_oled_render_keyinfo();
