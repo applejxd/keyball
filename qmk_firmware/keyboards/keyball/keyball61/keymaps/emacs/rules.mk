@@ -1,4 +1,5 @@
 OLED_ENABLE = yes
+# LED 未使用でもマウス移動のために必要?
 RGBLIGHT_ENABLE = yes
 
 # ALT key キーの上書きのため
@@ -19,12 +20,12 @@ VIA_ENABLE = no
 # # Link Time Optimization
 # LTO_ENABLE = yes
 
-# # printf に必要なコンソール表示を無効化
-# CONSOLE_ENABLE = no
-# # Shift または Ctrl キーで括弧を入力する機能を無効化
-# SPACE_CADET_ENABLE = no
-# # Shift キーまたは GUI キーで入力する Grave (~) を無効化
-# GRAVE_ESC_ENABLE = no
+# printf に必要なコンソール表示を無効化
+CONSOLE_ENABLE = no
+# Shift または Ctrl キーで括弧を入力する機能を無効化
+SPACE_CADET_ENABLE = no
+# Shift キーまたは GUI キーで入力する Grave (~) を無効化
+GRAVE_ESC_ENABLE = no
 
 # # メディアキーを無効化
 # EXTRAKEY_ENABLE = no
