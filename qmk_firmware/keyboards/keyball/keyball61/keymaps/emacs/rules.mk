@@ -22,7 +22,7 @@ LTO_ENABLE = yes
 CONSOLE_ENABLE = no
 # Magic キーコードとほぼ重複する Command 機能を無効化
 COMMAND_ENABLE = no
-# PC 機能キーを無効化
+# メディアキーを無効化
 EXTRAKEY_ENABLE = no
 # Shift または Ctrl キーで括弧を入力する機能を無効化
 SPACE_CADET_ENABLE = no

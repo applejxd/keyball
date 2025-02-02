@@ -165,7 +165,7 @@ const uint16_t PROGMEM left_click_combo[] = {KC_J, KC_K, COMBO_END};
 const uint16_t PROGMEM right_click_combo[] = {KC_K, KC_L, COMBO_END};
 const uint16_t PROGMEM middle_click_combo[] = {KC_J, KC_L, COMBO_END};
 
-conbo_t key_combos[] = {
+combo_t key_combos[] = {
     COMBO(left_click_combo, KC_BTN1),
     COMBO(right_click_combo, KC_BTN2),
     COMBO(middle_click_combo, KC_BTN3),
