@@ -21,11 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "quantum.h"
 
-// for MAGIC_ENABLE = no
-// see https://zenn.dev/koron/articles/98324ab760e83a
-// uint16_t keycode_config(uint16_t keycode) { return keycode; }
-// uint8_t mod_config(uint8_t mod) { return mod; }
-
 enum custom_keycodes {
     CUT_LINE = KEYBALL_SAFE_RANGE,
     SET_MARK,   
