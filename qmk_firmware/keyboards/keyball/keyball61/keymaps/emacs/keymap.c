@@ -21,10 +21,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "quantum.h"
 
+// for MAGIC_ENABLE = no
+// see https://zenn.dev/koron/articles/98324ab760e83a
+uint16_t keycode_config(uint16_t keycode) { return keycode; }
+uint8_t mod_config(uint8_t mod) { return mod; }
+
 enum custom_keycodes {
     CUT_LINE = KEYBALL_SAFE_RANGE,
     SET_MARK,   
-    UNMARK,
+    ABORT,
     COPY_TEXT,  
     CUT_TEXT,
     // for Windows
@@ -54,10 +59,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case SET_MARK:
             if (record->event.pressed) set_mark_active = !set_mark_active;
             break;
-        case UNMARK:
+        case ABORT:
             if (record->event.pressed) {
-                tap_code(KC_ESC);
-                set_mark_active = false;
+                if (set_mark_active) {
+                    // マーク解除時は ESC を送信しない
+                    set_mark_active = false;
+                } else {
+                    tap_code(KC_ESC);
+                }
             }
             break;
         case COPY_TEXT:
@@ -126,6 +135,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 /* Override */
 /* -------- */
 
+// ALT key override
 // see https://docs.qmk.fm/features/key_overrides
 // see https://docs.qmk.fm/feature_advanced_keycodes
 #if defined(KEY_OVERRIDE_ENABLE) 
@@ -146,6 +156,20 @@ const key_override_t **key_overrides = (const key_override_t *[]){
     NULL
 };
 #endif // KEY_OVERRIDE_ENABLE
+
+/* ----- */
+/* Combo */
+/* ----- */
+
+const uint16_t PROGMEM left_click_combo[] = {KC_J, KC_K, COMBO_END};
+const uint16_t PROGMEM right_click_combo[] = {KC_K, KC_L, COMBO_END};
+const uint16_t PROGMEM middle_click_combo[] = {KC_J, KC_L, COMBO_END};
+
+conbo_t key_combos[] = {
+    COMBO(left_click_combo, KC_BTN1),
+    COMBO(right_click_combo, KC_BTN2),
+    COMBO(middle_click_combo, KC_BTN3),
+}
 
 /* ------ */
 /* Layers */
@@ -188,9 +212,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
   // Emacs レイヤー (C-)
   [4] = LAYOUT_universal(
-    _______  , _______     , _______  , _______  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
+    _______  , _______     , SET_MARK , _______  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
     _______  , G(S(KC_F23)), CUT_TEXT , KC_END   , C(KC_R)  , C(KC_T)  ,                                  C(KC_V)  , C(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , _______  ,
-    _______  , KC_HOME     , C(KC_F)  , KC_DEL   , KC_RGHT  , UNMARK   ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  , _______  , _______  ,
+    _______  , KC_HOME     , C(KC_F)  , KC_DEL   , KC_RGHT  , ABORT    ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  , _______  , _______  ,
     _______  , G(KC_DOWN)  , OSL(5)   , C(KC_C)  , KC_PGDN  , KC_LEFT  , _______ ,             _______  , KC_DOWN  , KC_ENT   , _______  , _______  , C(KC_Z)  , _______  ,
     _______  , _______     , _______  , _______  , _______  , SET_MARK , _______  ,            _______  , _______  , _______  , _______  , _______  , _______  , _______ 
   ),

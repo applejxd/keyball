@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#ifdef RGBLIGHT_ENABLE
+// #ifdef RGBLIGHT_ENABLE
 // #    define RGBLIGHT_EFFECT_BREATHING
 // #    define RGBLIGHT_EFFECT_RAINBOW_MOOD
 // #    define RGBLIGHT_EFFECT_RAINBOW_SWIRL
@@ -31,13 +31,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // #    define RGBLIGHT_EFFECT_RGB_TEST
 // #    define RGBLIGHT_EFFECT_ALTERNATING
 // #    define RGBLIGHT_EFFECT_TWINKLE
-#endif
+// #endif
+
+// レイヤー数指定
+// see https://mazcon.hatenablog.com/entry/2023/11/10/080000
+#define DYNAMIC_KEYMAP_LAYER_COUNT 6
 
 #define TAP_CODE_DELAY 5
 
 #define POINTING_DEVICE_AUTO_MOUSE_ENABLE
 #define AUTO_MOUSE_DEFAULT_LAYER 2
 
-// レイヤー数指定
-// see https://mazcon.hatenablog.com/entry/2023/11/10/080000
-#define DYNAMIC_KEYMAP_LAYER_COUNT 6
+/* ------- */
+/* 容量節約 */
+/* ------- */
+
+// see https://zenn.dev/koron/articles/98324ab760e83a
+
+// disable Cherry MX Lock Key support
+#undef LOCKING_SUPPORT_ENABLE
+#undef LOCKING_RESYNC_ENABLE
+// use 8bit layer state (max 8 layers)
+#define LAYER_STATE_8BIT
