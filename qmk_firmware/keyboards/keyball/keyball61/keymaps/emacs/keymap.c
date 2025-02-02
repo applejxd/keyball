@@ -169,7 +169,7 @@ conbo_t key_combos[] = {
     COMBO(left_click_combo, KC_BTN1),
     COMBO(right_click_combo, KC_BTN2),
     COMBO(middle_click_combo, KC_BTN3),
-}
+};
 
 /* ------ */
 /* Layers */
