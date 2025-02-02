@@ -31,5 +31,8 @@ GRAVE_ESC_ENABLE = no
 EXTRAKEY_ENABLE = no
 # Magic キーコードとほぼ重複する Command 機能を無効化
 COMMAND_ENABLE = no
-# # Magic キーコードを無効化
+# Magic キーコードを無効化
 MAGIC_ENABLE = no
+
+# ミュージックモードを無効化
+MUSIC_ENABLE = no
