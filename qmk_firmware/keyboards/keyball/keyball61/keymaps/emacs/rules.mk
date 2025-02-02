@@ -1,5 +1,5 @@
 OLED_ENABLE = yes
-RGBLIGHT_ENABLE = no
+RGBLIGHT_ENABLE = yes
 
 # ALT key キーの上書きのため
 # https://docs.qmk.fm/features/key_overrides
