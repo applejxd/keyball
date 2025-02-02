@@ -18,7 +18,7 @@ VIA_ENABLE = no
 # see https://zenn.dev/koron/articles/98324ab760e83a
 
 # # Link Time Optimization
-# LTO_ENABLE = yes
+LTO_ENABLE = yes
 
 # printf に必要なコンソール表示を無効化
 CONSOLE_ENABLE = no
