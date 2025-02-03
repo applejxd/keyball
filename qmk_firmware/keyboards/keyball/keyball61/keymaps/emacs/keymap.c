@@ -137,11 +137,15 @@ const key_override_t **key_overrides = (const key_override_t *[]){
 const uint16_t PROGMEM left_click_combo[] = {KC_J, KC_K, COMBO_END};
 const uint16_t PROGMEM right_click_combo[] = {KC_K, KC_L, COMBO_END};
 const uint16_t PROGMEM middle_click_combo[] = {KC_J, KC_L, COMBO_END};
+const uint16_t PROGMEM prev_click_combo[] = {KC_M, KC_COMM, COMBO_END};
+const uint16_t PROGMEM next_click_combo[] = {KC_COMM, KC_DOT, COMBO_END};
 
 combo_t key_combos[] = {
     COMBO(left_click_combo, KC_BTN1),
     COMBO(right_click_combo, KC_BTN2),
     COMBO(middle_click_combo, KC_BTN3),
+    COMBO(prev_click_combo, KC_BTN4),
+    COMBO(next_click_combo, KC_BTN5),
 };
 #endif // COMBO_ENABLE
 
