@@ -43,7 +43,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case CUT_LINE:
             if (record->event.pressed) {
-                tap_code16(S(KC_END));
+                tap_code16(S(G(KC_RGHT)));
                 SEND_STRING(SS_DELAY(10));
                 tap_code16(C(KC_X));
             }
@@ -63,13 +63,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
         case COPY_TEXT:
             if (record->event.pressed) {
-                tap_code16(C(KC_C));
+                tap_code16(G(KC_C));
                 set_mark_active = false;
             }
             break;
         case CUT_TEXT:
             if (record->event.pressed) {
-                tap_code16(C(KC_X));
+                tap_code16(G(KC_X));
                 set_mark_active = false;
             }
             break;
@@ -92,7 +92,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 if (mod_state & MOD_MASK_ALT) {
                     del_mods(MOD_MASK_ALT);
-                    tap_code16(C(KC_C));    // w/o alt key
+                    tap_code16(G(KC_C));    // w/o alt key
                     set_mods(mod_state);
                     set_mark_active = false;
                     return false;
@@ -122,7 +122,7 @@ const key_override_t alt_w_to_gui_v = ko_make_basic(MOD_MASK_ALT, KC_Y, LGUI(KC_
 
 const key_override_t **key_overrides = (const key_override_t *[]){
     &alt_v_to_pageup,
-    &alt_b_to_ctrl_left,
+    &alt_b_to_ctrl_left, 
     &alt_f_to_ctrl_right,
     &alt_w_to_gui_v,
     NULL
@@ -191,9 +191,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // Emacs レイヤー (C-)
   [4] = LAYOUT_universal(
     _______  , _______     , SET_MARK , _______  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
-    _______  , G(S(KC_F23)), CUT_TEXT ,G(KC_RGHT), C(KC_R)  , C(KC_T)  ,                                  C(KC_V)  , C(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , _______  ,
-    _______  , G(KC_LEFT)  , C(KC_F)  , KC_DEL   , KC_RGHT  , ABORT    ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  , _______  , _______  ,
-    _______  , G(KC_DOWN)  , OSL(5)   , C(KC_C)  , KC_PGDN  , KC_LEFT  , _______ ,             _______  , KC_DOWN  , KC_ENT   , _______  , _______  , C(KC_Z)  , _______  ,
+    _______  , G(S(KC_F23)), CUT_TEXT ,G(KC_RGHT), C(KC_R)  , C(KC_T)  ,                                  G(KC_V)  , G(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , _______  ,
+    _______  , G(KC_LEFT)  , G(KC_F)  , KC_DEL   , KC_RGHT  , ABORT    ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  , _______  , _______  ,
+    _______  , G(KC_DOWN)  , OSL(5)   , C(KC_C)  , KC_PGDN  , KC_LEFT  , _______ ,             _______  , KC_DOWN  , KC_ENT   , _______  , _______  , G(KC_Z)  , _______  ,
     _______  , _______     , _______  , _______  , _______  , SET_MARK , _______  ,            _______  , _______  , _______  , _______  , _______  , _______  , _______ 
   ),
   // Emacs レイヤー (C-x)
