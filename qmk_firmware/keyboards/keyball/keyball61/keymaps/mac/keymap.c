@@ -190,8 +190,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
   // Emacs レイヤー (C-)
   [4] = LAYOUT_universal(
-    _______  , _______     , SET_MARK , _______  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
-    _______  , G(S(KC_F23)), CUT_TEXT ,G(KC_RGHT), C(KC_R)  , C(KC_T)  ,                                  G(KC_V)  , G(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , _______  ,
+    _______  , KC_F1       , KC_F2    , KC_F3    , KC_F4    , KC_F5    ,                                  KC_F6    , KC_F7    , KC_F8    , KC_F9    , KC_F10   , KC_F11   ,
+    _______  , G(S(KC_F23)), CUT_TEXT ,G(KC_RGHT), C(KC_R)  , C(KC_T)  ,                                  G(KC_V)  , G(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , KC_F12  ,
     _______  , G(KC_LEFT)  , G(KC_F)  , KC_DEL   , KC_RGHT  , ABORT    ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  , _______  , _______  ,
     _______  , G(KC_H)  , OSL(5)   , C(KC_C)  , KC_PGDN  , KC_LEFT  , _______ ,             _______  , KC_DOWN  , KC_ENT   , _______  , _______  , G(KC_Z)  , _______  ,
     _______  , _______     , _______  , _______  , _______  , SET_MARK , _______  ,            _______  , _______  , _______  , _______  , _______  , _______  , _______ 
