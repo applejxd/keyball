@@ -184,17 +184,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [3] = LAYOUT_universal(
     _______  , AML_TO   , AML_I50  , AML_D50  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
     _______  , SSNP_FRE , _______  , _______  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
-    _______  , SSNP_VRT , _______  , _______  , _______  , _______  ,                                  CPI_D1K  , CPI_D100 , CPI_I100 , CPI_I1K  , KBC_SAVE , KBC_RST  ,
+    KC_LCTL  , SSNP_VRT , _______  , _______  , _______  , _______  ,                                  CPI_D1K  , CPI_D100 , CPI_I100 , CPI_I1K  , KBC_SAVE , KBC_RST  ,
     _______  , SSNP_HOR , SCRL_DVD , SCRL_DVI , SCRL_MO  , SCRL_TO  , EE_CLR   ,            EE_CLR   , KC_HOME  , KC_PGDN  , KC_PGUP  , KC_END   , _______  , _______  ,
     QK_BOOT  , _______  , KC_LEFT  , KC_DOWN  , KC_UP    , KC_RGHT  , _______  ,            _______  , KC_BSPC  , _______  , _______  , _______  , _______  , QK_BOOT
   ),
   // Emacs レイヤー (C-)
   [4] = LAYOUT_universal(
     _______  , KC_F1       , KC_F2    , KC_F3    , KC_F4    , KC_F5    ,                                  KC_F6    , KC_F7    , KC_F8    , KC_F9    , KC_F10   , KC_F11   ,
-    _______  , G(S(KC_F23)), CUT_TEXT ,G(KC_RGHT), C(KC_R)  , C(KC_T)  ,                                  G(KC_V)  , G(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , KC_F12  ,
-    _______  , G(KC_LEFT)  , G(KC_F)  , KC_DEL   , KC_RGHT  , ABORT    ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  , _______  , _______  ,
-    _______  , G(KC_H)  , OSL(5)   , C(KC_C)  , KC_PGDN  , KC_LEFT  , _______ ,             _______  , KC_DOWN  , KC_ENT   , _______  , _______  , G(KC_Z)  , _______  ,
-    _______  , _______     , _______  , _______  , _______  , SET_MARK , _______  ,            _______  , _______  , _______  , _______  , _______  , _______  , _______ 
+    G(KC_TAB), G(S(KC_F23)), CUT_TEXT ,G(KC_RGHT), G(KC_R)  , G(KC_T)  ,                                  G(KC_V)  , G(KC_Z)  , KC_TAB   , G(KC_O)  , KC_UP    , KC_F12  ,
+    _______  , G(KC_LEFT)  , G(KC_F)  , KC_DEL   , KC_RGHT  , ABORT    ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , G(KC_L)  , _______  , _______  ,
+    G(KC_LSFT),G(KC_H)     , OSL(5)   , C(KC_C)  , KC_PGDN  , KC_LEFT  , _______ ,             _______  , KC_DOWN  , KC_ENT   ,G(KC_COMM), G(KC_DOT), G(KC_Z)  ,G(KC_RSFT) ,
+    G(KC_ESC), G(KC_LCTL)  ,G(KC_LALT), _______  , _______  , SET_MARK , _______  ,           G(KC_BSPC), G(KC_ENT), _______  , _______  , _______  ,G(KC_RALT), _______ 
   ),
   // Emacs レイヤー (C-x)
   [5] = LAYOUT_universal(
