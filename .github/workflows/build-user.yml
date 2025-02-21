@@ -17,7 +17,7 @@ on:
         description: 'Keymap'
         required: true
         type: string
-        default: 'default'
+        default: 'emacs'
 
 jobs:
 
