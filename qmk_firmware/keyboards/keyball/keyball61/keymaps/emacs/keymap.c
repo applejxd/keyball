@@ -61,23 +61,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             break;
-        case COPY_TEXT:
-            if (record->event.pressed) {
-                tap_code16(C(KC_C));
-                set_mark_active = false;
-            }
-            break;
-        case CUT_TEXT:
-            if (record->event.pressed) {
-                tap_code16(C(KC_X));
-                set_mark_active = false;
-            }
-            break;
-        case KC_DEL:
-            if (record->event.pressed) {
-                set_mark_active = false;
-            }
-            break;
         case KC_LEFT: case KC_RIGHT: case KC_UP: case KC_DOWN: 
         case KC_HOME: case KC_END: case KC_PGDN: case KC_PGUP:
             if (set_mark_active) {
@@ -87,6 +70,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     unregister_code(KC_LSFT);
                 }
             }
+            break;
+        case C(KC_C): case C(KC_X): case C(KC_V): case C(KC_K): case KC_DEL:
+            // 選択範囲を用いたアクションの後は選択解除
+            if (record->event.pressed) { set_mark_active = false; }
             break;
         case KC_W:
             if (record->event.pressed) {
