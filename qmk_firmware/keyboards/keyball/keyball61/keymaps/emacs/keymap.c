@@ -144,7 +144,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_universal(
    S(KC_LBRC), KC_1     , KC_2     , KC_3     , KC_4     , KC_5     ,                                  KC_6     , KC_7     , KC_8     , KC_9     , KC_0     , KC_MINS  ,
     KC_TAB   , KC_Q     , KC_W     , KC_E     , KC_R     , KC_T     ,                                  KC_Y     , KC_U     , KC_I     , KC_O     , KC_P     , S(KC_MINS)   ,
-    MO(4)    , KC_A     , KC_S     , KC_D     , KC_F     , KC_G     ,                                  KC_H     , KC_J     , KC_K     , KC_L     , KC_SCLN  , S(KC_7)  ,
+    MO(4)    , KC_A     , KC_S     , KC_D     , KC_F     , KC_G     ,                                  KC_H     , KC_J     , KC_K     , KC_L     , LT(3,KC_SCLN), S(KC_7)  ,
     MO(1)    , KC_Z     , KC_X     , KC_C     , KC_V     , KC_B     , KC_RBRC  ,              KC_NUHS, KC_N     , KC_M     , KC_COMM  , KC_DOT   , KC_SLSH  , KC_RSFT  ,
     KC_ESC   , KC_LCTL  , KC_LALT  , KC_LGUI,LT(1,KC_LNG2),LT(2,KC_SPC),LT(3,KC_LNG1),       KC_BSPC,LT(2,KC_ENT),_______  ,_______   , _______  , KC_RALT  , KC_INT3
   ),
@@ -159,19 +159,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // FN (TOP)・テンキー(左)・マウス(右)レイヤー。最左列はスクロール方向を変更。
   [2] = LAYOUT_universal(
     _______  , KC_F1    , KC_F2    , KC_F3    , KC_F4    , KC_F5    ,                                  KC_F6    , KC_F7    , KC_F8    , KC_F9    , KC_F10   , KC_F11   ,
-    SSNP_FRE , KC_SLSH  , KC_7     , KC_8     , KC_9     , KC_MINS  ,                                  _______  , KC_LEFT  , KC_UP    , KC_RGHT  , _______  , KC_F12   ,
-    SSNP_VRT ,S(KC_QUOT), KC_4     , KC_5     , KC_6     ,S(KC_SCLN),                                  KC_PGUP  , KC_BTN1  , KC_DOWN  , KC_BTN2  , KC_BTN3  , _______  ,
-    SSNP_HOR , KC_BSPC  , KC_1     , KC_2     , KC_3     ,S(KC_MINS), S(KC_8)  ,            S(KC_9)  , KC_PGDN  , KC_BTN4  , KC_BTN3  , KC_BTN5  , _______  , _______  ,
+    SSNP_FRE , KC_SLSH  , KC_7     , KC_8     , KC_9     , KC_MINS  ,                                  _______  , _______  , KC_UP    , _______  , _______  , KC_F12   ,
+    SSNP_VRT ,S(KC_QUOT), KC_4     , KC_5     , KC_6     ,S(KC_SCLN),                                  KC_PGUP  , KC_LEFT  , KC_DOWN  , KC_RGHT  , _______  , _______  ,
+    SSNP_HOR , KC_BSPC  , KC_1     , KC_2     , KC_3     ,S(KC_MINS), S(KC_8)  ,            S(KC_9)  , KC_PGDN  , _______  , _______  , _______  , _______  , _______  ,
     _______  , _______  , KC_0     , KC_DOT   , _______  , _______  , _______  ,             KC_DEL  , _______  , _______  , _______  , _______  , _______  , _______
   ),
   // 自動スクロール・マウス・キーボード設定レイヤー
-  // see https://github.com/Yowkees/keyball/blob/main/qmk_firmware/keyboards/keyball/lib/keyball/keycodes.md
+  // SSNP, CPI, SCRL, KBC (see https://github.com/Yowkees/keyball/blob/main/qmk_firmware/keyboards/keyball/lib/keyball/keycodes.md)
+  // QK_BOOT, EE_CLR (see https://docs.qmk.fm/quantum_keycodes#qmk-keycodes)
   [3] = LAYOUT_universal(
     _______  , AML_TO   , AML_I50  , AML_D50  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
     _______  , SSNP_FRE , _______  , _______  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
-    KC_LCTL  , SSNP_VRT , _______  , _______  , _______  , _______  ,                                  CPI_D1K  , CPI_D100 , CPI_I100 , CPI_I1K  , KBC_SAVE , KBC_RST  ,
-    _______  , SSNP_HOR , SCRL_DVD , SCRL_DVI , SCRL_MO  , SCRL_TO  , EE_CLR   ,            EE_CLR   , KC_HOME  , KC_PGDN  , KC_PGUP  , KC_END   , _______  , _______  ,
-    QK_BOOT  , _______  , KC_LEFT  , KC_DOWN  , KC_UP    , KC_RGHT  , _______  ,            _______  , KC_BSPC  , _______  , _______  , _______  , _______  , QK_BOOT
+    KC_LCTL  , SSNP_VRT , CPI_D1K  , CPI_D100 , CPI_I100 , CPI_I1K  ,                                  _______  , _______  , _______  , _______  , KBC_SAVE , KBC_RST  ,
+    _______  , SSNP_HOR , SCRL_DVD , SCRL_DVI , SCRL_MO  , SCRL_TO  , EE_CLR   ,            EE_CLR   , _______  , _______  , _______  , _______  , _______  , _______  ,
+    QK_BOOT  , _______  , _______  , _______  , _______  , _______  , _______  ,            _______  , _______  , _______  , _______  , _______  , _______  , QK_BOOT
   ),
   // Emacs レイヤー (C-)
   [4] = LAYOUT_universal(
