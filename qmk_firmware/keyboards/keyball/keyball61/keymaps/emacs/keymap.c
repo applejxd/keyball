@@ -156,7 +156,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______  , S(KC_Z)   , S(KC_X)    , S(KC_C)  , S(KC_V)  , S(KC_B)  ,S(KC_RBRC),           S(KC_NUHS), S(KC_N)  , S(KC_M)  ,S(KC_COMM), S(KC_DOT), S(KC_SLSH), S(KC_RSFT),
     S(KC_ESC), S(KC_LCTL), S(KC_LALT) , S(KC_LGUI), _______ , S(KC_SPC), _______  ,           S(KC_BSPC), S(KC_ENT), _______  , _______  , _______  , S(KC_RALT), S(KC_INT3)
   ),
-  // FN (TOP)・テンキー(左)・記号レイヤー。最左列はスクロール方向を変更。
+  // FN (TOP)・テンキー(左)・記号レイヤー(右)レイヤー。最左列はスクロール方向を変更。
   [2] = LAYOUT_universal(
     _______  , KC_F1    , KC_F2    , KC_F3    , KC_F4    , KC_F5    ,                                  KC_F6    , KC_F7    , KC_F8    , KC_F9    , KC_F10   , KC_F11   ,
     _______  ,S(KC_QUOT), KC_7     , KC_8     , KC_9     , S(KC_8)  ,                                  S(KC_9)  , S(KC_1)  , S(KC_6)  , KC_LBRC  , S(KC_4)  , KC_F12   ,
