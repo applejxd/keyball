@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // レイヤー数指定
 // see https://mazcon.hatenablog.com/entry/2023/11/10/080000
-#define DYNAMIC_KEYMAP_LAYER_COUNT 6
+#define DYNAMIC_KEYMAP_LAYER_COUNT 7
 
 #define TAP_CODE_DELAY 5
 
