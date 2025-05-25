@@ -146,7 +146,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_TAB   , KC_Q     , KC_W     , KC_E     , KC_R     , KC_T     ,                                  KC_Y     , KC_U     , KC_I     , KC_O     , KC_P     , KC_MINS,
     MO(4)    , KC_A     , KC_S     , KC_D     , KC_F     , KC_G     ,                                  KC_H     , KC_J     , KC_K     , KC_L     , LT(3,KC_SCLN), S(KC_7)  ,
     MO(1)    , KC_Z     , KC_X     , KC_C     , KC_V     , KC_B     , KC_RBRC  ,              KC_NUHS, KC_N     , KC_M     , KC_COMM  , KC_DOT   , KC_SLSH  , KC_INT3  ,
-    KC_ESC   , KC_LCTL  , KC_LALT  , KC_LGUI,LT(6,KC_LNG2),LT(2,KC_SPC),LT(3,KC_LNG1),       KC_BSPC,LT(2,KC_ENT),_______  ,_______   , _______  , KC_RALT  , KC_RSFT
+    KC_ESC   , KC_LCTL  , KC_LALT  , KC_LGUI,LT(1,KC_LNG2),LT(2,KC_SPC),LT(3,KC_LNG1),       KC_BSPC,LT(2,KC_ENT),_______  ,_______   , _______  , KC_RALT  , KC_RSFT
   ),
   // US 配列(印字)を JP キーボード(ソフト設定)として使用
   [1] = LAYOUT_universal(
