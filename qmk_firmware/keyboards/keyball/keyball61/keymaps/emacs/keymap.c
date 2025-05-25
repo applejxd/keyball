@@ -152,32 +152,32 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [1] = LAYOUT_universal(
     S(KC_EQL), S(KC_1)   , KC_LBRC    , S(KC_3)  , S(KC_4)  , S(KC_5)  ,                                  KC_EQL   , S(KC_6)  ,S(KC_QUOT), S(KC_8)  , S(KC_9)   , S(KC_INT1),
     S(KC_TAB), S(KC_Q)   , S(KC_W)    , S(KC_E)  , S(KC_R)  , S(KC_T)  ,                                  S(KC_Y)  , S(KC_U)  , S(KC_I)  , S(KC_O)  , S(KC_P)   , S(KC_SCLN),
-    S(KC_LCTL),S(KC_A)   , S(KC_S)    , S(KC_D)  , S(KC_F)  , S(KC_G)  ,                                  S(KC_H)  , S(KC_J)  , S(KC_K)  , S(KC_L)  , KC_QUOT   , S(KC_2)  ,
+    S(KC_LCTL),S(KC_A)   , S(KC_S)    , S(KC_D)  , S(KC_F)  , S(KC_G)  ,                                  S(KC_H)  , S(KC_J)  , S(KC_K)  , S(KC_L)  , KC_QU OT   , S(KC_2)  ,
     _______  , S(KC_Z)   , S(KC_X)    , S(KC_C)  , S(KC_V)  , S(KC_B)  ,S(KC_RBRC),           S(KC_NUHS), S(KC_N)  , S(KC_M)  ,S(KC_COMM), S(KC_DOT), S(KC_SLSH), S(KC_RSFT),
     S(KC_ESC), S(KC_LCTL), S(KC_LALT) , S(KC_LGUI), _______ , S(KC_SPC), _______  ,           S(KC_BSPC), S(KC_ENT), _______  , _______  , _______  , S(KC_RALT), S(KC_INT3)
   ),
   // FN (TOP)・テンキー(左)・マウス(右)レイヤー。最左列はスクロール方向を変更。
   [2] = LAYOUT_universal(
     _______  , KC_F1    , KC_F2    , KC_F3    , KC_F4    , KC_F5    ,                                  KC_F6    , KC_F7    , KC_F8    , KC_F9    , KC_F10   , KC_F11   ,
-    SSNP_FRE , KC_SLSH  , KC_7     , KC_8     , KC_9     , KC_MINS  ,                                  _______  , _______  , KC_UP    , _______  , _______  , KC_F12   ,
-    SSNP_VRT ,S(KC_QUOT), KC_4     , KC_5     , KC_6     ,S(KC_SCLN),                                  KC_PGUP  , KC_LEFT  , KC_DOWN  , KC_RGHT  , _______  , _______  ,
-    SSNP_HOR , KC_BSPC  , KC_1     , KC_2     , KC_3     ,S(KC_MINS), S(KC_8)  ,            S(KC_9)  , KC_PGDN  , _______  , _______  , _______  , _______  , _______  ,
+    _______  , KC_SLSH  , KC_7     , KC_8     , KC_9     , KC_MINS  ,                                  _______  , _______  , KC_UP    , _______  , _______  , KC_F12   ,
+    _______  ,S(KC_QUOT), KC_4     , KC_5     , KC_6     ,S(KC_SCLN),                                  KC_PGUP  , KC_LEFT  , KC_DOWN  , KC_RGHT  , _______  , _______  ,
+    _______  , KC_BSPC  , KC_1     , KC_2     , KC_3     ,S(KC_MINS), S(KC_8)  ,            S(KC_9)  , KC_PGDN  , _______  , _______  , _______  , _______  , _______  ,
     _______  , _______  , KC_0     , KC_DOT   , _______  , _______  , _______  ,             KC_DEL  , _______  , _______  , _______  , _______  , _______  , _______
   ),
-  // 自動スクロール・マウス・キーボード設定レイヤー
+  // Fn, 設定レイヤー
   // SSNP, CPI, SCRL, KBC (see https://github.com/Yowkees/keyball/blob/main/qmk_firmware/keyboards/keyball/lib/keyball/keycodes.md)
   // QK_BOOT, EE_CLR (see https://docs.qmk.fm/quantum_keycodes#qmk-keycodes)
   [3] = LAYOUT_universal(
-    _______  , AML_TO   , AML_I50  , AML_D50  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
-    _______  , SSNP_FRE , _______  , _______  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
-    KC_LCTL  , SSNP_VRT , CPI_D1K  , CPI_D100 , CPI_I100 , CPI_I1K  ,                                  _______  , _______  , _______  , _______  , KBC_SAVE , KBC_RST  ,
-    _______  , SSNP_HOR , SCRL_DVD , SCRL_DVI , SCRL_MO  , SCRL_TO  , EE_CLR   ,            EE_CLR   , _______  , _______  , _______  , _______  , _______  , _______  ,
-    QK_BOOT  , _______  , _______  , _______  , _______  , _______  , _______  ,            _______  , _______  , _______  , _______  , _______  , _______  , QK_BOOT
+    _______  , _______  , _______  , _______  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
+    _______  , SSNP_FRE , KC_F7    , KC_F8    , KC_F9    , KC_F12   ,                                  AML_TO   , AML_I50  , AML_D50  , EE_CLR   , KBC_RST  , _______  ,
+    _______  , SSNP_VRT , KC_F4    , KC_F5    , KC_F6    , KC_F11   ,                                  CPI_D1K  , CPI_D100 , CPI_I100 , CPI_I1K  , KBC_SAVE , _______  ,
+    _______  , SSNP_HOR , KC_F1    , KC_F2    , KC_F3    , KC_F10   , _______  ,            _______  , SCRL_DVD , SCRL_DVI , SCRL_MO  , SCRL_TO  , QK_BOOT  , _______  ,
+    _______  , _______  , _______  , _______  , _______  , _______  , _______  ,            _______  , _______  , _______  , _______  , _______  , _______  , _______
   ),
   // Emacs レイヤー (C-)
   [4] = LAYOUT_universal(
     _______  , KC_F1       , KC_F2    , KC_F3    , KC_F4    , KC_F5    ,                                  KC_F6    , KC_F7    , KC_F8    , KC_F9    , KC_F10   , KC_F11   ,
-    C(KC_TAB), G(S(KC_F23)), C(KC_X) , KC_END   , C(KC_R)  , C(KC_T)  ,                                  C(KC_V)  , C(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , KC_F12  ,
+    C(KC_TAB), G(S(KC_F23)), C(KC_X) , KC_END   , C(KC_R)  , C(KC_T)  ,                                   C(KC_V)  , C(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , KC_F12  ,
     _______  , KC_HOME     , C(KC_F)  , KC_DEL   , KC_RGHT  , ABORT    ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  ,C(KC_SCLN), _______  ,
     C(KC_LSFT),G(KC_DOWN)  , OSL(5)   , C(KC_C)  , KC_PGDN  , KC_LEFT  , C(KC_RBRC),          C(KC_NUHS), KC_DOWN  , KC_ENT   ,C(KC_COMM),C(KC_DOT) , C(KC_Z)  ,C(KC_RSFT) ,
     C(KC_ESC), _______     ,C(KC_LALT),C(KC_LGUI), _______  , SET_MARK , G(S(KC_S))  ,        C(KC_BSPC), C(KC_ENT), _______  , _______  , _______  ,C(KC_RALT), _______ 
@@ -195,8 +195,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // clang-format on
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    // Auto enable scroll mode when the highest layer is 3
-    keyball_set_scroll_mode(get_highest_layer(state) == 3);
+    int layer_num = get_highest_layer(state);
+
+    if (layer_num == 2) {
+        // レイヤー2では水平スクロール
+        keyball_set_scroll_mode(true);
+        keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_HORIZONTAL);
+    } else if (layer_num == 3) {
+        // レイヤー3では垂直スクロール
+        keyball_set_scroll_mode(true);
+        keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_VERTICAL);
+    } else {
+        // 他のレイヤーではスクロールを無効化
+        keyball_set_scroll_mode(false);
+    }
+    
     return state;
 }
 
