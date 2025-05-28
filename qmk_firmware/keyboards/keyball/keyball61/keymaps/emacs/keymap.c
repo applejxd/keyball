@@ -69,7 +69,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             break;
-        case C(KC_C): case C(KC_X): case C(KC_V): case C(KC_K): case KC_DEL:
+        case KC_C: case C(KC_C): case C(KC_X): case C(KC_V): case KC_DEL:
             // 選択範囲を用いたアクションの後は選択解除
             if (record->event.pressed) { set_mark_active = false; }
             break;
