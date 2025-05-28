@@ -73,17 +73,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             // 選択範囲を用いたアクションの後は選択解除
             if (record->event.pressed) { set_mark_active = false; }
             break;
-        case KC_W:
-            if (record->event.pressed) {
-                if (mod_state & MOD_MASK_ALT) {
-                    del_mods(MOD_MASK_ALT);
-                    tap_code16(C(KC_C));    // w/o alt key
-                    set_mods(mod_state);
-                    set_mark_active = false;
-                    return false;
-                }
-            }
-            return true;
+        // case KC_W:
+        //     if (record->event.pressed) {
+        //         if (mod_state & MOD_MASK_ALT) {
+        //             del_mods(MOD_MASK_ALT);
+        //             tap_code16(C(KC_C));    // w/o alt key
+        //             set_mods(mod_state);
+        //             set_mark_active = false;
+        //             return false;
+        //         }
+        //     }
+        //     return true;
     }
     return true;
 }
