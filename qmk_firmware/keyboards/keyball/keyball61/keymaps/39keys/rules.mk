@@ -13,7 +13,7 @@ COMBO_ENABLE = yes
 # 容量節約 #
 #---------#
 
-VIA_ENABLE = no
+VIA_ENABLE = yes
 
 # 既に元ファイルで対策済み
 # see https://zenn.dev/koron/articles/98324ab760e83a
