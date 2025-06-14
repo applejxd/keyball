@@ -192,7 +192,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
         // 垂直スクロール
         keyball_set_scroll_mode(true);
         keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_VERTICAL);
-    } elif (layer_num == 1) {
+    } else if (layer_num == 1) {
         // 水平スクロール
         keyball_set_scroll_mode(true);
         keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_HORIZONTAL);
