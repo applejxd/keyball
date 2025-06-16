@@ -145,9 +145,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_universal(
     _______  , _______       , _______  , _______  , _______  , _______  ,                          _______  , _______  , _______  , _______  , _______      , _______  ,
     _______  , KC_Q          , KC_W     , KC_E     , KC_R     , KC_T     ,                          KC_Y     , KC_U     , KC_I     , KC_O     , KC_P         , _______  ,
-    _______  , LT(3,KC_A)    , KC_S     , KC_D     , KC_F     , KC_G     ,                          KC_H     , KC_J     , KC_K     , KC_L     , LT(3,KC_SCLN), _______  ,
-    _______  , LSFT_T(KC_Z)  , KC_X     , KC_C     , KC_V     , KC_B     , _______  ,      _______, KC_N     , KC_M     , KC_COMM  , KC_DOT   , LT(1,KC_SLSH), _______  ,
-    _______  , KC_LCTL       , KC_LALT,KC_LGUI,LSFT_T(KC_LNG2),LT(3,KC_SPC),LT(1,KC_LNG1), KC_BSPC,LT(2,KC_ENT),_______ , _______  , _______  , KC_RSFT      , _______
+    _______  , KC_A          , KC_S     , KC_D     , KC_F     , KC_G     ,                          KC_H     , KC_J     , KC_K     , KC_L     , LT(3,KC_SCLN), _______  ,
+    _______  , KC_Z          , KC_X     , KC_C     , KC_V     , KC_B     , _______  ,      _______, KC_N     , KC_M     , KC_COMM  , KC_DOT   , LT(1,KC_SLSH), _______  ,
+    _______  , KC_LCTL       , KC_LALT,KC_LGUI,LSFT_T(KC_LNG2),LT(1,KC_SPC),LT(3,KC_LNG1), KC_BSPC,LT(2,KC_ENT),_______ , _______  , _______  , KC_RSFT      , _______
   ),
   // 記号専用レイヤー
   [1] = LAYOUT_universal(
@@ -168,10 +168,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // Emacs レイヤー (C-)
   [3] = LAYOUT_universal(
     _______  , _______  , _______  , _______  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
-    C(KC_TAB), G(S(KC_F23)), C(KC_X)  , KC_END   , C(KC_R)  , C(KC_T)  ,                                  C(KC_V)  , C(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , _______  ,
+    _______  , G(S(KC_F23)), C(KC_X)  , KC_END   , C(KC_R)  , C(KC_T)  ,                                  C(KC_V)  , C(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , _______  ,
     _______  , KC_HOME     , C(KC_F)  , KC_DEL   , KC_RGHT  , ABORT    ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  ,C(KC_SCLN), _______  ,
-    C(KC_LSFT),G(KC_DOWN)  , OSL(4)   , C(KC_C)  , KC_PGDN  , KC_LEFT  , C(KC_RBRC),          C(KC_NUHS), KC_DOWN  , KC_ENT   ,C(KC_COMM),C(KC_DOT) , C(KC_Z)  , _______ ,
-    C(KC_ESC), _______     ,C(KC_LALT),C(KC_LGUI), _______  , SET_MARK , G(S(KC_S))  ,        C(KC_BSPC), C(KC_ENT), _______  , _______  , _______  ,C(KC_RALT), _______ 
+    _______  , G(KC_DOWN)  , OSL(4)   , C(KC_C)  , KC_PGDN  , KC_LEFT  , C(KC_RBRC),          C(KC_NUHS), KC_DOWN  , KC_ENT   ,C(KC_COMM),C(KC_DOT) , C(KC_Z)  , _______ ,
+    _______  , _______     ,C(KC_LALT),C(KC_LGUI), _______  , SET_MARK , G(S(KC_S))  ,        C(KC_BSPC), C(KC_ENT), _______  , _______  , _______  ,C(KC_RALT), _______ 
   ),
   // Emacs レイヤー (C-x)
   [4] = LAYOUT_universal(
