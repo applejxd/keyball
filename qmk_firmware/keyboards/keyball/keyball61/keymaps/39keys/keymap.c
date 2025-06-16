@@ -145,8 +145,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_universal(
     _______  , _______       , _______  , _______  , _______  , _______  ,                          _______  , _______  , _______  , _______  , _______      , _______  ,
     _______  , KC_Q          , KC_W     , KC_E     , KC_R     , KC_T     ,                          KC_Y     , KC_U     , KC_I     , KC_O     , KC_P         , _______  ,
-    _______  , KC_A          , KC_S     , KC_D     , KC_F     , KC_G     ,                          KC_H     , KC_J     , KC_K     , KC_L     , LT(3,KC_SCLN), _______  ,
-    _______  , KC_Z          , KC_X     , KC_C     , KC_V     , KC_B     , _______  ,      _______, KC_N     , KC_M     , KC_COMM  , KC_DOT   , LT(1,KC_SLSH), _______  ,
+    _______  , KC_A          , KC_S     , KC_D     , KC_F     , KC_G     ,                          KC_H     , KC_J     , KC_K     , KC_L     , LT(1,KC_SCLN), _______  ,
+    _______  , KC_Z          , KC_X     , KC_C     , KC_V     , KC_B     , _______  ,      _______, KC_N     , KC_M     , KC_COMM  , KC_DOT   , LT(3,KC_SLSH), _______  ,
     _______  , KC_LCTL       , KC_LALT  , KC_LGUI,LSFT_T(KC_LNG2),LT(1,KC_SPC),LT(3,KC_LNG1), KC_BSPC,LT(2,KC_ENT),_______ , _______  , _______  , KC_RSFT      , _______
   ),
   // 記号専用レイヤー
@@ -160,14 +160,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // FN (TOP)・テンキー(左)・記号レイヤー(右)レイヤー。最左列はスクロール方向を変更。
   [2] = LAYOUT_universal(
     _______  , _______  , _______  , _______  , _______  , _______   ,                          _______  , _______ , _______  , _______  , _______  , _______  ,
-    _______  ,S(KC_QUOT), KC_7     , KC_8     , KC_9     , S(KC_8)   ,                          _______  , KC_F7   , KC_F8    , KC_F9    , KC_F12   , _______  ,
-    _______  ,S(KC_SCLN), KC_4     , KC_5     , KC_6     , KC_RBRC   ,                          _______  , KC_F4   , KC_F5    , KC_F6    , KC_F11   , _______  ,
-    _______  ,S(KC_MINS), KC_1     , KC_2     , KC_3     , S(KC_RBRC), _______  ,     _______ , _______  , KC_F1   , KC_F2    , KC_F3    , KC_F10   , _______  ,
-    _______  , _______  , KC_0     , KC_DOT   , KC_LSFT  , _______    , _______  ,    _______ , _______  , _______ , _______  , _______  , _______  , _______
+    _______  ,S(KC_QUOT), KC_7     , KC_8     , KC_9     , _______   ,                          _______  , KC_F7   , KC_F8    , KC_F9    , KC_F12   , _______  ,
+    _______  ,S(KC_SCLN), KC_4     , KC_5     , KC_6     , _______   ,                          _______  , KC_F4   , KC_F5    , KC_F6    , KC_F11   , _______  ,
+    _______  ,S(KC_MINS), KC_1     , KC_2     , KC_3     , _______   , _______  ,     _______ , _______  , KC_F1   , KC_F2    , KC_F3    , KC_F10   , _______  ,
+    _______  , _______  , KC_0     , KC_DOT   , KC_LSFT  , _______   , _______  ,     _______ , _______  , _______ , _______  , _______  , _______  , _______
   ),
   // Emacs レイヤー (C-)
   [3] = LAYOUT_universal(
-    _______  , _______  , _______  , _______  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
+    _______  , _______  , _______  , _______  , _______  , _______  ,                                     _______  , _______  , _______  , _______  , _______  , _______  ,
     _______  , G(S(KC_F23)), C(KC_X)  , KC_END   , C(KC_R)  , C(KC_T)  ,                                  C(KC_V)  , C(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , _______  ,
     _______  , KC_HOME     , C(KC_F)  , KC_DEL   , KC_RGHT  , ABORT    ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  ,C(KC_SCLN), _______  ,
     _______  , G(KC_DOWN)  , OSL(4)   , C(KC_C)  , KC_PGDN  , KC_LEFT  , C(KC_RBRC),          C(KC_NUHS), KC_DOWN  , KC_ENT   ,C(KC_COMM),C(KC_DOT) , C(KC_Z)  , _______ ,
@@ -188,11 +188,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 layer_state_t layer_state_set_user(layer_state_t state) {
     int layer_num = get_highest_layer(state);
 
-    if (layer_num == 3) {
+    if (layer_num == 1) {
         // 垂直スクロール
         keyball_set_scroll_mode(true);
         keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_VERTICAL);
-    } else if (layer_num == 1) {
+    } else if (layer_num == 3) {
         // 水平スクロール
         keyball_set_scroll_mode(true);
         keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_HORIZONTAL);
