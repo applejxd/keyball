@@ -146,7 +146,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_TAB   , KC_Q     , KC_W     , KC_E     , KC_R     , KC_T     ,                                  KC_Y     , KC_U     , KC_I     , KC_O     , KC_P     , KC_MINS,
     MO(4)    , KC_A     , KC_S     , KC_D     , KC_F     , KC_G     ,                                  KC_H     , KC_J     , KC_K     , KC_L     , LT(2,KC_SCLN), S(KC_7)  ,
     KC_LSFT  , KC_Z     , KC_X     , KC_C     , KC_V     , KC_B     , KC_RBRC  ,              KC_NUHS, KC_N     , KC_M     , KC_COMM  , KC_DOT   , LT(4,KC_SLSH), KC_INT3  ,
-    KC_ESC   , KC_LCTL  , KC_LALT  , KC_LGUI,LSFT_T(KC_LNG2),LT(2,KC_SPC),LT(4,KC_LNG1),      KC_BSPC,LT(3,KC_ENT),_______ ,_______   , _______  , KC_RALT  , MO(1)
+    KC_ESC   , KC_LCTL  , KC_LALT  , KC_LGUI,LSFT_T(KC_LNG2),LT(2,KC_SPC),LT(4,KC_LNG1),      KC_BSPC,LT(3,KC_ENT),_______ ,_______   , _______  , KC_RSFT      , MO(1)
   ),
   // US 配列(印字)を JP キーボード(ソフト設定)として使用
   [1] = LAYOUT_universal(
@@ -154,7 +154,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     S(KC_TAB), S(KC_Q)   , S(KC_W)    , S(KC_E)  , S(KC_R)  , S(KC_T)  ,                                  S(KC_Y)  , S(KC_U)  , S(KC_I)  , S(KC_O)  , S(KC_P)   , S(KC_INT1),
     S(KC_LCTL),S(KC_A)   , S(KC_S)    , S(KC_D)  , S(KC_F)  , S(KC_G)  ,                                  S(KC_H)  , S(KC_J)  , S(KC_K)  , S(KC_L)  , KC_QUOT   , S(KC_2)  ,
     _______  , S(KC_Z)   , S(KC_X)    , S(KC_C)  , S(KC_V)  , S(KC_B)  ,S(KC_RBRC),           S(KC_NUHS), S(KC_N)  , S(KC_M)  ,S(KC_COMM), S(KC_DOT), S(KC_SLSH), S(KC_INT3),
-    S(KC_ESC), S(KC_LCTL), S(KC_LALT) , S(KC_LGUI), _______ , S(KC_SPC), _______  ,           S(KC_BSPC), S(KC_ENT), _______  , _______  , _______  , S(KC_RALT), _______
+    S(KC_ESC), S(KC_LCTL), S(KC_LALT) , S(KC_LGUI), _______ , S(KC_SPC), _______  ,           S(KC_BSPC), S(KC_ENT), _______  , _______  , _______  , S(KC_RSFT), _______
   ),
   // 記号専用レイヤー
   [2] = LAYOUT_universal(
@@ -180,7 +180,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     C(KC_TAB), G(S(KC_F23)), C(KC_X)  , KC_END   , C(KC_R)  , C(KC_T)  ,                                  C(KC_V)  , C(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , KC_F12  ,
     _______  , KC_HOME     , C(KC_F)  , KC_DEL   , KC_RGHT  , ABORT    ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  ,C(KC_SCLN), _______  ,
     C(KC_LSFT),G(KC_DOWN)  , OSL(5)   , C(KC_C)  , KC_PGDN  , KC_LEFT  , C(KC_RBRC),          C(KC_NUHS), KC_DOWN  , KC_ENT   ,C(KC_COMM),C(KC_DOT) , C(KC_Z)  ,C(KC_RSFT) ,
-    C(KC_ESC), _______     ,C(KC_LALT),C(KC_LGUI), _______  , SET_MARK , G(S(KC_S))  ,        C(KC_BSPC), C(KC_ENT), _______  , _______  , _______  ,C(KC_RALT), _______ 
+    C(KC_ESC), _______     ,C(KC_LALT),C(KC_LGUI), _______  , SET_MARK , G(S(KC_S))  ,        C(KC_BSPC), C(KC_ENT), _______  , _______  , _______  ,C(KC_RSFT), _______ 
   ),
   // Emacs レイヤー (C-x)
   [5] = LAYOUT_universal(
