@@ -159,9 +159,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // 記号専用レイヤー
   [2] = LAYOUT_universal(
     _______  , _______    , _______  , _______    , _______    , _______    ,                     _______    , _______    , _______    , _______    , _______    , _______ ,
-    _______  , S(KC_1)    , KC_LBRC  , S(KC_3)    , S(KC_4)    , S(KC_8)    ,                     S(KC_9)    , S(KC_6)    , S(KC_QUOT) , S(KC_7)    , S(KC_2)    , _______ ,
-    _______  , S(KC_LBRC) , KC_EQL   , S(KC_INT3) , S(KC_SCLN) , KC_RBRC    ,                     KC_NUHS    , KC_MINS    , S(KC_EQL)  , S(KC_MINS) , KC_QUOT    , _______ ,
-    _______  , XXXXXXX    , XXXXXXX  , S(KC_5)    , KC_INT1    , S(KC_RBRC) , _______ ,  _______, S(KC_NUHS) , S(KC_INT1) , S(KC_COMM) , S(KC_DOT)  , S(KC_SLSH) , _______ ,
+    _______  , S(KC_1)    , S(KC_2)  , S(KC_3)    , S(KC_4)    , S(KC_9)    ,                     S(KC_0)    , S(KC_7)    , S(KC_8)    , KC_QUOT    , S(KC_QUOT)    , _______ ,
+    _______  , KC_GRV     , S(KC_6)  , S(KC_SLSH) , S(KC_EQL)  , KC_LBRC    ,                     KC_RBRC    , KC_MINS    , S(KC_GRV)  , KC_EQL     , S(KC_SCLN)    , _______ ,
+    _______  , XXXXXXX    , XXXXXXX  , S(KC_5)    , KC_BSLS    , S(KC_LBRC) , _______ ,  _______, S(KC_RBRC) , S(KC_MINS) , S(KC_COMM) , S(KC_DOT)  , S(KC_SLSH) , _______ ,
     _______  , _______    , _______  , _______    , KC_LSFT    , _______    , _______ ,  _______, _______    , _______    , _______    , _______    , _______    , _______
   ),
   // Fn, 設定レイヤー
