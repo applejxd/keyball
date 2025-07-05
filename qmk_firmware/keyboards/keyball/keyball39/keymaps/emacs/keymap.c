@@ -154,6 +154,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     S(KC_LBRC) , KC_EQL   , S(KC_INT3) , S(KC_SCLN) , KC_RBRC    ,                     KC_NUHS    , KC_MINS    , S(KC_EQL)  , S(KC_MINS) , KC_QUOT    ,
     XXXXXXX    , XXXXXXX  , S(KC_5)    , KC_INT1    , S(KC_RBRC) ,                     S(KC_NUHS) , S(KC_INT1) , S(KC_COMM) , S(KC_DOT)  , S(KC_SLSH) ,
     _______    , _______  , _______    , KC_LSFT    , _______    , _______ ,  _______, _______    , _______    , _______    , _______    , _______   
+  ),
   // FN (TOP)・テンキー(左)・記号レイヤー(右)レイヤー。最左列はスクロール方向を変更。
   [2] = LAYOUT_universal(
     S(KC_QUOT), KC_7     , KC_8     , KC_9     , _______   ,                          _______  , KC_F7   , KC_F8    , KC_F9    , KC_F12   , 
@@ -167,6 +168,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_HOME     , C(KC_F)  , KC_DEL   , KC_RGHT  , ABORT    ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  ,C(KC_SCLN), 
     G(KC_DOWN)  , OSL(4)   , C(KC_C)  , KC_PGDN  , KC_LEFT  ,                                  KC_DOWN  , KC_ENT   ,C(KC_COMM),C(KC_DOT) , C(KC_Z)  ,
     _______     ,C(KC_LALT),C(KC_LGUI), _______  , SET_MARK , G(S(KC_S))  ,        C(KC_BSPC), C(KC_ENT), _______  , _______  , _______  ,C(KC_RALT)
+  ),
   // Emacs レイヤー (C-x)
   [4] = LAYOUT_universal(
     _______    , S(C(KC_S)) , _______  , _______  , _______  ,                                  _______  , C(KC_Z)  , _______  , A(KC_TAB), _______  , 
