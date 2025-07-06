@@ -164,10 +164,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
   // Emacs レイヤー (C-)
   [3] = LAYOUT_universal(
-    G(S(KC_F23)), C(KC_X)  , KC_END   , C(KC_R)  , C(KC_T)  ,                                  C(KC_V)  , C(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , 
-    KC_HOME     , C(KC_F)  , KC_DEL   , KC_RGHT  , ABORT    ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  ,C(KC_SCLN), 
-    G(KC_DOWN)  , OSL(4)   , C(KC_C)  , KC_PGDN  , KC_LEFT  ,                                  KC_DOWN  , KC_ENT   ,C(KC_COMM),C(KC_DOT) , C(KC_Z)  ,
-    _______     ,C(KC_LALT),C(KC_LGUI), _______  , SET_MARK , G(S(KC_S))  ,        C(KC_BSPC), C(KC_ENT), _______  , _______  , _______  ,C(KC_RALT)
+    G(S(KC_F23)), C(KC_X)  , KC_END   , C(KC_R)  , C(KC_T)  ,                           C(KC_V)  , C(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , 
+    KC_HOME     , C(KC_F)  , KC_DEL   , KC_RGHT  , ABORT    ,                           KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  ,C(KC_SCLN), 
+    G(KC_DOWN)  , OSL(4)   , C(KC_C)  , KC_PGDN  , KC_LEFT  ,                           KC_DOWN  , KC_ENT   ,C(KC_COMM),C(KC_DOT) , C(KC_Z)  ,
+    _______     ,C(KC_LALT),C(KC_LGUI), _______  , SET_MARK , _______  ,    G(S(KC_S)), SET_MARK , _______  , _______  , _______  ,C(KC_RALT)
   ),
   // Emacs レイヤー (C-x)
   [4] = LAYOUT_universal(
@@ -182,7 +182,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     int heighest_layer_num = get_highest_layer(state);
-
+q
     if (heighest_layer_num == 1) {
         // 垂直スクロール
         keyball_set_scroll_mode(true);
