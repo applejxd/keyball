@@ -208,4 +208,32 @@ void oledkit_render_info_user(void) {
     keyball_oled_render_ballinfo();
     keyball_oled_render_layerinfo();
 }
+
+const rgblight_segment_t PROGMEM layer0[] = RGBLIGHT_LAYER_SEGMENTS({0, 12, HSV_WHITE});
+const rgblight_segment_t PROGMEM layer1[] = RGBLIGHT_LAYER_SEGMENTS({0, 12, HSV_RED});
+const rgblight_segment_t PROGMEM layer2[] = RGBLIGHT_LAYER_SEGMENTS({0, 12, HSV_GREEN});
+const rgblight_segment_t PROGMEM layer3[] = RGBLIGHT_LAYER_SEGMENTS({0, 12, HSV_BLUE});
+const rgblight_segment_t PROGMEM layer4[] = RGBLIGHT_LAYER_SEGMENTS({0, 12, HSV_YELLOW});
+
+const rgblight_segment_t* const PROGMEM my_layers[] = RGBLIGHT_LAYERS_LIST(
+    0,
+    1,
+    2,
+    3,
+    4
+);
+
+void keyboard_post_init_user(void) {
+    rgblight_layers = my_layers;
+    rgblight_enable_noeeprom();
+    rgblight_mode_noeeprom(RGBLIGHT_MODE_STATIC_LIGHT);
+}
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    for (uint8_t i = 0; i < 5; ++i) {
+        rgblight_set_layer_state(i, layer_state_cmp(state, i));
+    }
+    return state;
+}
+
 #endif

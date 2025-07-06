@@ -1,6 +1,8 @@
 OLED_ENABLE = yes
+
 # LED 未使用でもマウス移動のために必要?
 RGBLIGHT_ENABLE = yes
+RGBLIGHT_ANIMATIONS = no
 
 # ALT key キーの上書きのため
 # https://docs.qmk.fm/features/key_overrides
