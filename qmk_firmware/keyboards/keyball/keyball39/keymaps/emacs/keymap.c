@@ -180,6 +180,44 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // clang-format on
 
+layer_state_t layer_state_set_user(layer_state_t state) {
+    int heighest_layer_num = get_highest_layer(state);
+
+    if (heighest_layer_num == 1) {
+        // 垂直スクロール
+        keyball_set_scroll_mode(true);
+        keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_VERTICAL);
+    } else if (heighest_layer_num == 3) {
+        // 水平スクロール
+        keyball_set_scroll_mode(true);
+        keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_HORIZONTAL);
+    } else {
+        // 他のレイヤーではスクロールを無効化
+        keyball_set_scroll_mode(false);
+    }
+
+    uint8_t layer = biton32(state);
+    switch(layer) {
+        case 0:
+            rgblight_sethsv(HSV_WHITE);
+            break;
+        case 1:
+            rgblight_sethsv(HSV_RED);
+            break;
+        case 2:
+            rgblight_sethsv(HSV_BLUE);
+            break;
+        case 3:
+            rgblight_sethsv(HSV_GREEN);
+            break;
+        case 4:
+            rgblight_sethsv(HSV_YELLOW);
+            break;
+    }
+    
+    return state;
+}
+
 #ifdef OLED_ENABLE
 
 #include "lib/oledkit/oledkit.h"
@@ -190,49 +228,4 @@ void oledkit_render_info_user(void) {
     keyball_oled_render_layerinfo();
 }
 
-const rgblight_segment_t PROGMEM layer0[] = RGBLIGHT_LAYER_SEGMENTS({0, 12, HSV_WHITE});
-const rgblight_segment_t PROGMEM layer1[] = RGBLIGHT_LAYER_SEGMENTS({0, 12, HSV_RED});
-const rgblight_segment_t PROGMEM layer2[] = RGBLIGHT_LAYER_SEGMENTS({0, 12, HSV_GREEN});
-const rgblight_segment_t PROGMEM layer3[] = RGBLIGHT_LAYER_SEGMENTS({0, 12, HSV_BLUE});
-const rgblight_segment_t PROGMEM layer4[] = RGBLIGHT_LAYER_SEGMENTS({0, 12, HSV_YELLOW});
-
-const rgblight_segment_t* const PROGMEM my_layers[] = RGBLIGHT_LAYERS_LIST(
-    0,
-    1,
-    2,
-    3,
-    4
-);
-
-void keyboard_post_init_user(void) {
-    rgblight_layers = my_layers;
-    rgblight_enable_noeeprom();
-    rgblight_mode_noeeprom(RGBLIGHT_MODE_STATIC_LIGHT);
-}
-
 #endif
-
-layer_state_t layer_state_set_user(layer_state_t state) {
-#ifdef OLED_ENABLE
-    for (uint8_t i = 0; i < 5; ++i) {
-        rgblight_set_layer_state(i, layer_state_cmp(state, i));
-    }
-#endif // OLED_ENABLE
-
-    int layer_num = get_highest_layer(state);
-
-    if (layer_num == 1) {
-        // 垂直スクロール
-        keyball_set_scroll_mode(true);
-        keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_VERTICAL);
-    } else if (layer_num == 3) {
-        // 水平スクロール
-        keyball_set_scroll_mode(true);
-        keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_HORIZONTAL);
-    } else {
-        // 他のレイヤーではスクロールを無効化
-        keyball_set_scroll_mode(false);
-    }
-    
-    return state;
-}
