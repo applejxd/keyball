@@ -59,3 +59,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGBLIGHT_EFFECT_RGB_TEST        false
 #define RGBLIGHT_EFFECT_ALTERNATING     false
 #define RGBLIGHT_EFFECT_TWINKLE         false
+
+#define RGBLIGHT_LAYERS
+#define RGBLIGHT_MAX_LAYERS 8
+#define RGBLED_NUM 46 // LEDの個数
+#define RGBLED_SPLIT { 24, 22 } // (分割キーボードの場合)左右それぞれに実装したLEDの個数
