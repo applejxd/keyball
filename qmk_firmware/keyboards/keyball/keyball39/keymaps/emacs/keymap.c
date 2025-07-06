@@ -182,7 +182,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     int heighest_layer_num = get_highest_layer(state);
-q
+
     if (heighest_layer_num == 1) {
         // 垂直スクロール
         keyball_set_scroll_mode(true);
@@ -196,24 +196,24 @@ q
         keyball_set_scroll_mode(false);
     }
 
-    uint8_t layer = biton32(state);
-    switch(layer) {
-        case 0:
-            rgblight_sethsv(HSV_WHITE);
-            break;
-        case 1:
-            rgblight_sethsv(HSV_RED);
-            break;
-        case 2:
-            rgblight_sethsv(HSV_BLUE);
-            break;
-        case 3:
-            rgblight_sethsv(HSV_GREEN);
-            break;
-        case 4:
-            rgblight_sethsv(HSV_YELLOW);
-            break;
-    }
+    // uint8_t layer = biton32(state);
+    // switch(layer) {
+    //     case 0:
+    //         rgblight_sethsv(HSV_WHITE);
+    //         break;
+    //     case 1:
+    //         rgblight_sethsv(HSV_RED);
+    //         break;
+    //     case 2:
+    //         rgblight_sethsv(HSV_BLUE);
+    //         break;
+    //     case 3:
+    //         rgblight_sethsv(HSV_GREEN);
+    //         break;
+    //     case 4:
+    //         rgblight_sethsv(HSV_YELLOW);
+    //         break;
+    // }
     
     return state;
 }
