@@ -180,25 +180,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // clang-format on
 
-layer_state_t layer_state_set_user(layer_state_t state) {
-    int layer_num = get_highest_layer(state);
-
-    if (layer_num == 1) {
-        // 垂直スクロール
-        keyball_set_scroll_mode(true);
-        keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_VERTICAL);
-    } else if (layer_num == 3) {
-        // 水平スクロール
-        keyball_set_scroll_mode(true);
-        keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_HORIZONTAL);
-    } else {
-        // 他のレイヤーではスクロールを無効化
-        keyball_set_scroll_mode(false);
-    }
-    
-    return state;
-}
-
 #ifdef OLED_ENABLE
 
 #include "lib/oledkit/oledkit.h"
@@ -229,11 +210,29 @@ void keyboard_post_init_user(void) {
     rgblight_mode_noeeprom(RGBLIGHT_MODE_STATIC_LIGHT);
 }
 
+#endif
+
 layer_state_t layer_state_set_user(layer_state_t state) {
+#ifdef OLED_ENABLE
     for (uint8_t i = 0; i < 5; ++i) {
         rgblight_set_layer_state(i, layer_state_cmp(state, i));
     }
+#endif // OLED_ENABLE
+
+    int layer_num = get_highest_layer(state);
+
+    if (layer_num == 1) {
+        // 垂直スクロール
+        keyball_set_scroll_mode(true);
+        keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_VERTICAL);
+    } else if (layer_num == 3) {
+        // 水平スクロール
+        keyball_set_scroll_mode(true);
+        keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_HORIZONTAL);
+    } else {
+        // 他のレイヤーではスクロールを無効化
+        keyball_set_scroll_mode(false);
+    }
+    
     return state;
 }
-
-#endif
