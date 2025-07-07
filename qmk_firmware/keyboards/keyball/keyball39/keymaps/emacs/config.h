@@ -46,8 +46,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // ワンショットキーを無効化
 #undef NO_ACTION_ONESHOT
 
-// #define RGBLIGHT_LAYERS
-// #define RGBLIGHT_DEFAULT_MODE RGBLIGHT_MODE_STATIC_LIGHT
 // すべてのエフェクトを無効化
 #undef RGBLIGHT_EFFECT_BREATHING       
 #undef RGBLIGHT_EFFECT_RAINBOW_MOOD    
