@@ -167,7 +167,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     G(S(KC_F23)), C(KC_X)  , KC_END   , C(KC_R)  , C(KC_T)  ,                           C(KC_V)  , C(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , 
     KC_HOME     , C(KC_F)  , KC_DEL   , KC_RGHT  , ABORT    ,                           KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  ,C(KC_SCLN), 
     G(KC_DOWN)  , OSL(4)   , C(KC_C)  , KC_PGDN  , KC_LEFT  ,                           KC_DOWN  , KC_ENT   ,C(KC_COMM),C(KC_DOT) , C(KC_Z)  ,
-    _______     ,C(KC_LALT),C(KC_LGUI), _______  , SET_MARK , _______  ,    G(S(KC_S)), SET_MARK , _______  , _______  , _______  ,C(KC_RALT)
+    _______     ,C(KC_LALT),C(KC_LGUI), _______  , RGB_TOG , _______  ,    G(S(KC_S)), SET_MARK , _______  , _______  , _______  ,C(KC_RALT)
   ),
   // Emacs レイヤー (C-x)
   [4] = LAYOUT_universal(
@@ -198,22 +198,24 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
     uint8_t layer = biton32(state);
     // see https://github.com/qmk/qmk_firmware/blob/9c965bb62ec9ea84e68e0a1559dfbc35429df090/quantum/color.h#L49
-    switch(layer) {
-        case 0:
-            rgblight_sethsv(HSV_WHITE);
-            break;
-        case 1:
-            rgblight_sethsv(HSV_RED);
-            break;
-        case 2:
-            rgblight_sethsv(HSV_GREEN);
-            break;
-        case 3:
-            rgblight_sethsv(HSV_BLUE);
-            break;
-        case 4:
-            rgblight_sethsv(HSV_PURPLE);
-            break;
+    if (rgblight_is_enabled()) {
+        switch(layer) {
+            case 0:
+                rgblight_sethsv(HSV_WHITE);
+                break;
+            case 1:
+                rgblight_sethsv(HSV_RED);
+                break;
+            case 2:
+                rgblight_sethsv(HSV_GREEN);
+                break;
+            case 3:
+                rgblight_sethsv(HSV_BLUE);
+                break;
+            case 4:
+                rgblight_sethsv(HSV_PURPLE);
+                break;
+        }
     }
     
     return state;
