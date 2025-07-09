@@ -198,22 +198,23 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
     uint8_t layer = biton32(state);
     // see https://github.com/qmk/qmk_firmware/blob/9c965bb62ec9ea84e68e0a1559dfbc35429df090/quantum/color.h#L49
+    // see https://docs.qmk.fm/features/rgblight
     if (rgblight_is_enabled()) {
         switch(layer) {
             case 0:
-                rgblight_sethsv(HSV_WHITE);
+                rgblight_sethsv(HSV_CYAN);
                 break;
             case 1:
-                rgblight_sethsv(HSV_RED);
+                rgblight_sethsv(HSV_AZURE);
                 break;
             case 2:
-                rgblight_sethsv(HSV_GREEN);
-                break;
-            case 3:
                 rgblight_sethsv(HSV_BLUE);
                 break;
+            case 3:
+                rgblight_sethsv(HSV_VIOLET);
+                break;
             case 4:
-                rgblight_sethsv(HSV_PURPLE);
+                rgblight_sethsv(HSV_MAGENTA);
                 break;
         }
     }
