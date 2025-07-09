@@ -49,7 +49,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    define RGBLED_SPLIT    { 24, 24 }  // (24 + 22)
 #    ifndef RGBLIGHT_LIMIT_VAL
 // see https://github.com/Yowkees/keyball/discussions/194#discussioncomment-4867982 
-#        define RGBLIGHT_LIMIT_VAL  50 // limitated for power consumption
+#        define RGBLIGHT_LIMIT_VAL  70 // limitated for power consumption
 #    endif
 #    ifndef RGBLIGHT_VAL_STEP
 #        define RGBLIGHT_VAL_STEP   15
