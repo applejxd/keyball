@@ -202,10 +202,10 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     if (rgblight_is_enabled()) {
         switch(layer) {
             case 0:
-                rgblight_sethsv(HSV_AZURE);
+                rgblight_sethsv(HSV_WHITE);
                 break;
             case 1:
-                rgblight_sethsv(HSV_CYAN );
+                rgblight_sethsv(HSV_AZURE);
                 break;
             case 2:
                 rgblight_sethsv(HSV_BLUE);
