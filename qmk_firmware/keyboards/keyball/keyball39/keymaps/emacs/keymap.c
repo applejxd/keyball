@@ -138,43 +138,51 @@ combo_t key_combos[] = {
 /* Layers */
 /* ------ */
 
+enum keymap_layer {
+    KL_BASE = 0,  // アルファベットレイヤー
+    KL_SMB,       // 記号専用レイヤー
+    KL_NUMFN,     // テンキー(左)・FN(右)レイヤー
+    KL_EMACS,     // Emacs レイヤー (C-)
+    KL_CX,        // Emacs レイヤー (C-x)
+};
+
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // アルファベットレイヤー
   // 無効キーは右手トラックボールレイアウトでは存在しないキー
-  [0] = LAYOUT_universal(
-    KC_Q          , KC_W     , KC_E     , KC_R     , KC_T     ,                          KC_Y     , KC_U     , KC_I     , KC_O     , KC_P         , 
-    KC_A          , KC_S     , KC_D     , KC_F     , KC_G     ,                          KC_H     , KC_J     , KC_K     , KC_L     , LT(1,KC_SCLN), 
-    KC_Z          , KC_X     , KC_C     , KC_V     , KC_B     ,                          KC_N     , KC_M     , KC_COMM  , KC_DOT   , LT(3,KC_SLSH), 
-    KC_LCTL       , KC_LALT  , KC_LGUI,LSFT_T(KC_LNG2),LT(1,KC_SPC),LT(3,KC_LNG1), KC_BSPC,LT(2,KC_ENT),_______ , _______  , _______  , KC_RSFT    
+  [KL_BASE] = LAYOUT_universal(
+    KC_Q   , KC_W   , KC_E   , KC_R           , KC_T        ,                              KC_Y               , KC_U   , KC_I   , KC_O   , KC_P                , 
+    KC_A   , KC_S   , KC_D   , KC_F           , KC_G        ,                              KC_H               , KC_J   , KC_K   , KC_L   , LT(KL_SMB,KC_SCLN)  , 
+    KC_Z   , KC_X   , KC_C   , KC_V           , KC_B        ,                              KC_N               , KC_M   , KC_COMM, KC_DOT , LT(KL_EMACS,KC_SLSH), 
+    KC_LCTL, KC_LALT, KC_LGUI, LSFT_T(KC_LNG2), LT(1,KC_SPC), LT(KL_SMB,KC_LNG1), KC_BSPC, LT(KL_NUMFN,KC_ENT), _______, _______, _______, KC_RSFT    
   ),
   // 記号専用レイヤー
-  [1] = LAYOUT_universal(
-    S(KC_1)    , KC_LBRC  , S(KC_3)    , S(KC_4)    , S(KC_8)    ,                     S(KC_9)    , S(KC_6)    , S(KC_QUOT) , S(KC_7)    , S(KC_2)    ,
-    S(KC_LBRC) , KC_EQL   , S(KC_INT3) , S(KC_SCLN) , KC_RBRC    ,                     KC_NUHS    , KC_MINS    , S(KC_EQL)  , S(KC_MINS) , KC_QUOT    ,
-    XXXXXXX    , XXXXXXX  , S(KC_5)    , KC_INT1    , S(KC_RBRC) ,                     S(KC_NUHS) , S(KC_INT1) , S(KC_COMM) , S(KC_DOT)  , S(KC_SLSH) ,
-    _______    , _______  , _______    , KC_LSFT    , _______    , _______ ,  _______, _______    , _______    , _______    , _______    , _______   
+  [KL_SMB] = LAYOUT_universal(
+    S(KC_1)   , KC_LBRC, S(KC_3)   , S(KC_4)   , S(KC_8)   ,                    S(KC_9)   , S(KC_6)   , S(KC_QUOT), S(KC_7)   , S(KC_2)   ,
+    S(KC_LBRC), KC_EQL , S(KC_INT3), S(KC_SCLN), KC_RBRC   ,                    KC_NUHS   , KC_MINS   , S(KC_EQL) , S(KC_MINS), KC_QUOT   ,
+    XXXXXXX   , XXXXXXX, S(KC_5)   , KC_INT1   , S(KC_RBRC),                    S(KC_NUHS), S(KC_INT1), S(KC_COMM), S(KC_DOT) , S(KC_SLSH),
+    _______   , _______, _______   , KC_LSFT   , _______   , _______,  _______, _______   , _______   , _______   , _______   , _______   
   ),
   // FN (TOP)・テンキー(左)・記号レイヤー(右)レイヤー。最左列はスクロール方向を変更。
-  [2] = LAYOUT_universal(
-    S(KC_QUOT), KC_7     , KC_8     , KC_9     , _______   ,                          _______  , KC_F7   , KC_F8    , KC_F9    , KC_F12   , 
-    S(KC_SCLN), KC_4     , KC_5     , KC_6     , _______   ,                          _______  , KC_F4   , KC_F5    , KC_F6    , KC_F11   , 
-    S(KC_MINS), KC_1     , KC_2     , KC_3     , _______   ,                          _______  , KC_F1   , KC_F2    , KC_F3    , KC_F10   , 
-     _______  , KC_0     , KC_DOT   , KC_LSFT  , _______   , _______  ,     _______ , _______  , _______ , _______  , _______  , _______  
+  [KL_NUMFN] = LAYOUT_universal(
+    S(KC_QUOT), KC_7, KC_8  , KC_9   , _______,                       _______, KC_F7  , KC_F8  , KC_F9  , KC_F12 , 
+    S(KC_SCLN), KC_4, KC_5  , KC_6   , _______,                       _______, KC_F4  , KC_F5  , KC_F6  , KC_F11 , 
+    S(KC_MINS), KC_1, KC_2  , KC_3   , _______,                       _______, KC_F1  , KC_F2  , KC_F3  , KC_F10 , 
+     _______  , KC_0, KC_DOT, KC_LSFT, _______, _______,     _______, _______, _______, _______, _______, _______ 
   ),
   // Emacs レイヤー (C-)
-  [3] = LAYOUT_universal(
-    G(S(KC_F23)), C(KC_X)  , KC_END   , C(KC_R)  , C(KC_T)  ,                           C(KC_V)  , C(KC_Z)  , KC_TAB    , C(KC_O)   , KC_UP     , 
-    KC_HOME     , C(KC_F)  , KC_DEL   , KC_RGHT  , ABORT    ,                           KC_BSPC  , KC_ENT   , CUT_LINE  , C(KC_L)   , C(KC_SCLN),
-    G(KC_DOWN)  , OSL(4)   , C(KC_C)  , KC_PGDN  , KC_LEFT  ,                           KC_DOWN  , KC_ENT   , C(KC_COMM), C(KC_DOT) , C(KC_Z)   ,
-    _______     ,C(KC_LALT),C(KC_LGUI), _______  , RGB_TOG  , _______  ,    G(S(KC_S)), SET_MARK , _______  , _______   , _______   , C(KC_RSFT)
+  [KL_EMACS] = LAYOUT_universal(
+    G(S(KC_F23)), C(KC_X)   , KC_END    , C(KC_R), C(KC_T),                         C(KC_V) , C(KC_Z), KC_TAB    , C(KC_O)  , KC_UP     , 
+    KC_HOME     , C(KC_F)   , KC_DEL    , KC_RGHT, ABORT  ,                         KC_BSPC , KC_ENT , CUT_LINE  , C(KC_L)  , C(KC_SCLN),
+    G(KC_DOWN)  , OSL(KL_CX), C(KC_C)   , KC_PGDN, KC_LEFT,                         KC_DOWN , KC_ENT , C(KC_COMM), C(KC_DOT), C(KC_Z)   ,
+    _______     , C(KC_LALT), C(KC_LGUI), _______, RGB_TOG, _______,    G(S(KC_S)), SET_MARK, _______, _______   , _______  , C(KC_RSFT)
   ),
   // Emacs レイヤー (C-x)
-  [4] = LAYOUT_universal(
-    _______    , S(C(KC_S)) , _______  , _______  , _______  ,                                  _______  , C(KC_Z)  , _______  , A(KC_TAB), _______  , 
-    _______    , C(KC_S)    , G(KC_E)  , C(KC_O)  , _______  ,                                  C(KC_A)  , _______  , C(KC_W)  , _______  , _______  , 
-    _______    , _______    , A(KC_F4) , _______  , G(KC_TAB),                                  _______  , _______  , _______  , _______  , _______  , 
-    _______    , _______    , _______  , _______  , _______  , _______ ,             _______  , _______  , _______  , _______  , _______  , _______  
+  [KL_CX] = LAYOUT_universal(
+    _______, S(C(KC_S)), _______ , _______, _______  ,                               _______, C(KC_Z), _______, A(KC_TAB), _______, 
+    _______, C(KC_S)   , G(KC_E) , C(KC_O), _______  ,                               C(KC_A), _______, C(KC_W), _______  , _______, 
+    _______, _______   , A(KC_F4), _______, G(KC_TAB),                               _______, _______, _______, _______  , _______, 
+    _______, _______   , _______ , _______, _______  , _______,             _______, _______, _______, _______, _______  , _______  
   ),
 };
 
@@ -183,11 +191,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 layer_state_t layer_state_set_user(layer_state_t state) {
     int heighest_layer_num = get_highest_layer(state);
 
-    if (heighest_layer_num == 1) {
+    if (heighest_layer_num == KL_SMB) {
         // 垂直スクロール
         keyball_set_scroll_mode(true);
         keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_VERTICAL);
-    } else if (heighest_layer_num == 3) {
+    } else if (heighest_layer_num == KL_EMACS) {
         // 水平スクロール
         keyball_set_scroll_mode(true);
         keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_HORIZONTAL);
