@@ -138,57 +138,67 @@ combo_t key_combos[] = {
 /* Layers */
 /* ------ */
 
+enum keymap_layer {
+    KL_BASE = 0,  // アルファベットレイヤー
+    KL_SFT,       // US 配列(印字)を JP キーボード(ソフト設定)として使用
+    KL_SMB,       // 記号専用レイヤー
+    KL_NUMFN,     // テンキー(左)・FN(右)レイヤー
+    KL_EMACS,     // Emacs レイヤー (C-)
+    KL_CX,        // Emacs レイヤー (C-x)
+};
+
+
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // 無効キーは右手トラックボールレイアウトでは存在しないキー
-  [0] = LAYOUT_universal(
-   S(KC_LBRC), KC_1     , KC_2     , KC_3     , KC_4     , KC_5     ,                                  KC_6     , KC_7     , KC_8     , KC_9     , KC_0     , S(KC_MINS)  ,
-    KC_TAB   , KC_Q     , KC_W     , KC_E     , KC_R     , KC_T     ,                                  KC_Y     , KC_U     , KC_I     , KC_O     , KC_P     , KC_MINS,
-    MO(4)    , KC_A     , KC_S     , KC_D     , KC_F     , KC_G     ,                                  KC_H     , KC_J     , KC_K     , KC_L     , LT(2,KC_SCLN), S(KC_7)  ,
-    KC_LSFT  , KC_Z     , KC_X     , KC_C     , KC_V     , KC_B     , KC_RBRC  ,              KC_NUHS, KC_N     , KC_M     , KC_COMM  , KC_DOT   , LT(4,KC_SLSH), KC_INT3  ,
-    KC_ESC   , KC_LCTL  , KC_LALT  , KC_LGUI,LSFT_T(KC_LNG2),LT(2,KC_SPC),LT(4,KC_LNG1),      KC_BSPC,LT(3,KC_ENT),_______ ,_______   , _______  , KC_RSFT      , MO(1)
+  [KL_BASE] = LAYOUT_universal(
+    S(KC_LBRC)  , KC_1   , KC_2   , KC_3   , KC_4           , KC_5             ,                                     KC_6               , KC_7   , KC_8   , KC_9   , KC_0                , S(KC_MINS),
+    KC_TAB      , KC_Q   , KC_W   , KC_E   , KC_R           , KC_T             ,                                     KC_Y               , KC_U   , KC_I   , KC_O   , KC_P                , KC_MINS   ,
+    MO(KL_EMACS), KC_A   , KC_S   , KC_D   , KC_F           , KC_G             ,                                     KC_H               , KC_J   , KC_K   , KC_L   , LT(KL_SMB,KC_SCLN)  , S(KC_7)   ,
+    KC_LSFT     , KC_Z   , KC_X   , KC_C   , KC_V           , KC_B             , KC_RBRC             ,      KC_NUHS, KC_N               , KC_M   , KC_COMM, KC_DOT , LT(KL_EMACS,KC_SLSH), KC_INT3   ,
+    KC_ESC      , KC_LCTL, KC_LALT, KC_LGUI, LSFT_T(KC_LNG2), LT(KL_SMB,KC_SPC), LT(KL_EMACS,KC_LNG1),      KC_BSPC, LT(KL_NUMFN,KC_ENT), _______, _______, _______, KC_RSFT             , MO(1)
   ),
   // US 配列(印字)を JP キーボード(ソフト設定)として使用
-  [1] = LAYOUT_universal(
-    S(KC_EQL), S(KC_1)   , KC_LBRC    , S(KC_3)  , S(KC_4)  , S(KC_5)  ,                                  KC_EQL   , S(KC_6)  ,S(KC_QUOT), S(KC_8)  , S(KC_9)   , S(KC_SCLN),
-    S(KC_TAB), S(KC_Q)   , S(KC_W)    , S(KC_E)  , S(KC_R)  , S(KC_T)  ,                                  S(KC_Y)  , S(KC_U)  , S(KC_I)  , S(KC_O)  , S(KC_P)   , S(KC_INT1),
-    S(KC_LCTL),S(KC_A)   , S(KC_S)    , S(KC_D)  , S(KC_F)  , S(KC_G)  ,                                  S(KC_H)  , S(KC_J)  , S(KC_K)  , S(KC_L)  , KC_QUOT   , S(KC_2)  ,
-    _______  , S(KC_Z)   , S(KC_X)    , S(KC_C)  , S(KC_V)  , S(KC_B)  ,S(KC_RBRC),           S(KC_NUHS), S(KC_N)  , S(KC_M)  ,S(KC_COMM), S(KC_DOT), S(KC_SLSH), S(KC_INT3),
-    S(KC_ESC), S(KC_LCTL), S(KC_LALT) , S(KC_LGUI), _______ , S(KC_SPC), _______  ,           S(KC_BSPC), S(KC_ENT), _______  , _______  , _______  , S(KC_RSFT), _______
+  [KL_SFT] = LAYOUT_universal(
+    S(KC_EQL) , S(KC_1)   , KC_LBRC   , S(KC_3)   , S(KC_4), S(KC_5)  ,                                   KC_EQL   , S(KC_6), S(KC_QUOT), S(KC_8)  , S(KC_9)   , S(KC_SCLN),
+    S(KC_TAB) , S(KC_Q)   , S(KC_W)   , S(KC_E)   , S(KC_R), S(KC_T)  ,                                   S(KC_Y)  , S(KC_U), S(KC_I)   , S(KC_O)  , S(KC_P)   , S(KC_INT1),
+    S(KC_LCTL), S(KC_A)   , S(KC_S)   , S(KC_D)   , S(KC_F), S(KC_G)  ,                                   S(KC_H)  , S(KC_J), S(KC_K)   , S(KC_L)  , KC_QUOT   , S(KC_2)   ,
+    _______   , S(KC_Z)   , S(KC_X)   , S(KC_C)   , S(KC_V), S(KC_B)  , S(KC_RBRC),           S(KC_NUHS), S(KC_N)  , S(KC_M), S(KC_COMM), S(KC_DOT), S(KC_SLSH), S(KC_INT3),
+    S(KC_ESC) , S(KC_LCTL), S(KC_LALT), S(KC_LGUI), _______, S(KC_SPC), _______   ,           S(KC_BSPC), S(KC_ENT), _______, _______   , _______  , S(KC_RSFT), _______
   ),
   // 記号専用レイヤー
-  [2] = LAYOUT_universal(
-    _______  , _______    , _______  , _______    , _______    , _______    ,                     _______    , _______    , _______    , _______    , _______    , _______ ,
-    _______  , S(KC_1)    , KC_LBRC  , S(KC_3)    , S(KC_4)    , S(KC_8)    ,                     S(KC_9)    , S(KC_6)    , S(KC_QUOT) , S(KC_7)    , S(KC_2)    , _______ ,
-    _______  , S(KC_LBRC) , KC_EQL   , S(KC_INT3) , S(KC_SCLN) , KC_RBRC    ,                     KC_NUHS    , KC_MINS    , S(KC_EQL)  , S(KC_MINS) , KC_QUOT    , _______ ,
-    _______  , XXXXXXX    , XXXXXXX  , S(KC_5)    , KC_INT1    , S(KC_RBRC) , _______ ,  _______, S(KC_NUHS) , S(KC_INT1) , S(KC_COMM) , S(KC_DOT)  , S(KC_SLSH) , _______ ,
-    _______  , _______    , _______  , _______    , KC_LSFT    , _______    , _______ ,  _______, _______    , _______    , _______    , _______    , _______    , _______
+  [KL_SMB] = LAYOUT_universal(
+    _______, _______   , _______, _______   , _______   , _______   ,                     _______  , _______   , _______   , _______   , _______   , _______,
+    _______, S(KC_1)   , KC_LBRC, S(KC_3)   , S(KC_4)   , S(KC_8)   ,                     S(KC_9)  , S(KC_6)   , S(KC_QUOT), S(KC_7)   , S(KC_2)   , _______,
+    _______, S(KC_LBRC), KC_EQL , S(KC_INT3), S(KC_SCLN), KC_RBRC   ,                     KC_NUHS  , KC_MINS   , S(KC_EQL) , S(KC_MINS), KC_QUOT   , _______,
+    _______, XXXXXXX   , XXXXXXX, S(KC_5)   , KC_INT1   , S(KC_RBRC), _______,  _______, S(KC_NUHS), S(KC_INT1), S(KC_COMM), S(KC_DOT) , S(KC_SLSH), _______,
+    _______, KC_LCTL   , KC_LALT, KC_LGUI   , KC_LSFT   , _______   , _______,  _______, _______   , _______   , _______   , _______   , _______   , _______
   ),
-  // Fn, 設定レイヤー
+  // テンキー・Fn・設定レイヤー
   // SSNP, CPI, SCRL, KBC (see https://github.com/Yowkees/keyball/blob/main/qmk_firmware/keyboards/keyball/lib/keyball/keycodes.md)
   // QK_BOOT, EE_CLR (see https://docs.qmk.fm/quantum_keycodes#qmk-keycodes)
-  [3] = LAYOUT_universal(
-    EE_CLR   , SCRL_DVD  , SCRL_DVI , SCRL_MO  , SCRL_TO , _______   ,                                  _______  , CPI_D1K  , CPI_D100 , CPI_I100 , CPI_I1K  , _______  ,
-    AML_TO   , S(KC_QUOT), KC_7     , KC_8     , KC_9    , _______   ,                                  _______  , KC_F7    , KC_F8    , KC_F9    , KC_F12   , KBC_RST  ,
-    AML_I50  , S(KC_SCLN), KC_4     , KC_5     , KC_6    , _______   ,                                  _______  , KC_F4    , KC_F5    , KC_F6    , KC_F11   , KBC_SAVE ,
-    AML_D50  , S(KC_MINS), KC_1     , KC_2     , KC_3    , _______   , _______  ,            _______  , _______  , KC_F1    , KC_F2    , KC_F3    , KC_F10   , QK_BOOT  ,
-    _______  , _______   , KC_0     , KC_DOT   , KC_LSFT , _______   , _______  ,            _______  , _______  , _______  , _______  , _______  , _______  , _______
+  [KL_NUMFN] = LAYOUT_universal(
+    EE_CLR , SCRL_DVD  , SCRL_DVI, SCRL_MO, SCRL_TO, _______,                              _______, CPI_D1K, CPI_D100, CPI_I100, CPI_I1K, _______ ,
+    AML_TO , S(KC_QUOT), KC_7    , KC_8   , KC_9   , _______,                              _______, KC_F7  , KC_F8   , KC_F9   , KC_F12 , KBC_RST ,
+    AML_I50, S(KC_SCLN), KC_4    , KC_5   , KC_6   , _______,                              _______, KC_F4  , KC_F5   , KC_F6   , KC_F11 , KBC_SAVE,
+    AML_D50, S(KC_MINS), KC_1    , KC_2   , KC_3   , _______, _______,            _______, _______, KC_F1  , KC_F2   , KC_F3   , KC_F10 , QK_BOOT ,
+    _______, _______   , KC_0    , KC_DOT , KC_LSFT, _______, _______,            _______, _______, _______, _______ , _______ , _______, _______
   ),
   // Emacs レイヤー (C-)
-  [4] = LAYOUT_universal(
-    _______  , KC_F1       , KC_F2    , KC_F3    , KC_F4    , KC_F5    ,                                  KC_F6    , KC_F7    , KC_F8    , KC_F9    , KC_F10   , KC_F11   ,
-    C(KC_TAB), G(S(KC_F23)), C(KC_X)  , KC_END   , C(KC_R)  , C(KC_T)  ,                                  C(KC_V)  , C(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , KC_F12  ,
-    _______  , KC_HOME     , C(KC_F)  , KC_DEL   , KC_RGHT  , ABORT    ,                                  KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  ,C(KC_SCLN), _______  ,
-    C(KC_LSFT),G(KC_DOWN)  , OSL(5)   , C(KC_C)  , KC_PGDN  , KC_LEFT  , C(KC_RBRC),          C(KC_NUHS), KC_DOWN  , KC_ENT   ,C(KC_COMM),C(KC_DOT) , C(KC_Z)  ,C(KC_RSFT) ,
-    C(KC_ESC), _______     ,C(KC_LALT),C(KC_LGUI), _______  , SET_MARK , G(S(KC_S))  ,        C(KC_BSPC), C(KC_ENT), _______  , _______  , _______  ,C(KC_RSFT), _______ 
+  [KL_EMACS] = LAYOUT_universal(
+    _______   , KC_F1       , KC_F2     , KC_F3     , KC_F4  , KC_F5  ,                                  KC_F6   , KC_F7  , KC_F8     , KC_F9    , KC_F10    , KC_F11    ,
+    C(KC_TAB) , G(S(KC_F23)), C(KC_X)   , KC_END    , C(KC_R), C(KC_T),                                  C(KC_V) , C(KC_Z), KC_TAB    , C(KC_O)  , KC_UP     , KC_F12    ,
+    _______   , KC_HOME     , C(KC_F)   , KC_DEL    , KC_RGHT, ABORT  ,                                  KC_BSPC , KC_ENT , CUT_LINE  , C(KC_L)  , C(KC_SCLN), _______   ,
+    C(KC_LSFT), G(KC_DOWN)  , OSL(KL_CX), C(KC_C)   , KC_PGDN, KC_LEFT, C(KC_RBRC),          C(KC_NUHS), KC_DOWN , KC_ENT , C(KC_COMM), C(KC_DOT), C(KC_Z)   , C(KC_RSFT),
+    C(KC_ESC) , _______     , C(KC_LALT), C(KC_LGUI), _______, RGB_TOG, _______   ,          C(S(KC_S)), SET_MARK, _______, _______   , _______  , C(KC_RSFT), _______ 
   ),
   // Emacs レイヤー (C-x)
-  [5] = LAYOUT_universal(
-    _______  , _______   , _______    , _______  , _______  , _______  ,                                  _______  , _______  , _______  , _______  , _______  , _______  ,
-    _______  , _______   , S(C(KC_S)) , _______  , _______  , _______  ,                                  _______  , C(KC_Z)  , _______  , A(KC_TAB), _______  , _______  ,
-    _______  , _______   , C(KC_S)    , G(KC_E)  , C(KC_O)  , _______  ,                                  C(KC_A)  , _______  , C(KC_W)  , _______  , _______  , _______  ,
-    _______  , _______   , _______    , A(KC_F4) , _______  , G(KC_TAB), _______ ,             _______  , _______  , _______  , _______  , _______  , _______  , _______  ,
-    _______  , _______   , _______    , _______  , _______  , _______  , _______ ,             _______  , _______  , _______  , _______  , _______  , _______  , _______ 
+  [KL_CX] = LAYOUT_universal(
+    _______, _______, _______   , _______ , _______, _______  ,                               _______, _______, _______, _______  , _______, _______,
+    _______, _______, S(C(KC_S)), _______ , _______, _______  ,                               _______, C(KC_Z), _______, A(KC_TAB), _______, _______,
+    _______, _______, C(KC_S)   , G(KC_E) , C(KC_O), _______  ,                               C(KC_A), _______, C(KC_W), _______  , _______, _______,
+    _______, _______, _______   , A(KC_F4), _______, G(KC_TAB), _______,             _______, _______, _______, _______, _______  , _______, _______,
+    _______, _______, _______   , _______ , _______, _______  , _______,             _______, _______, _______, _______, _______  , _______, _______ 
   ),
 };
 
@@ -197,11 +207,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 layer_state_t layer_state_set_user(layer_state_t state) {
     int layer_num = get_highest_layer(state);
 
-    if (layer_num == 2) {
+    if (layer_num == KL_SMB) {
         // 垂直スクロール
         keyball_set_scroll_mode(true);
         keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_VERTICAL);
-    } else if (layer_num == 4) {
+    } else if (layer_num == KL_EMACS) {
         // 水平スクロール
         keyball_set_scroll_mode(true);
         keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_HORIZONTAL);
