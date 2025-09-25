@@ -151,10 +151,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // アルファベットレイヤー
   // 無効キーは右手トラックボールレイアウトでは存在しないキー
   [KL_BASE] = LAYOUT_universal(
-    KC_Q        , KC_W   , KC_E   , KC_R           , KC_T             ,                                KC_Y               , KC_U   , KC_I   , KC_O   , LT(KL_EMACS,KC_P)   , 
-    KC_A        , KC_S   , KC_D   , KC_F           , KC_G             ,                                KC_H               , KC_J   , KC_K   , KC_L   , LT(KL_SMB,KC_SCLN)  , 
-    LSFT_T(KC_Z), KC_X   , KC_C   , KC_V           , KC_B             ,                                KC_N               , KC_M   , KC_COMM, KC_DOT , RSFT_T(KC_SLSH)     , 
-    KC_LCTL     , KC_LALT, KC_LGUI, LSFT_T(KC_LNG2), LT(KL_SMB,KC_SPC), LT(KL_EMACS,KC_LNG1), KC_BSPC, LT(KL_NUMFN,KC_ENT), _______, _______, _______, KC_RSFT    
+    KC_Q        , KC_W   , KC_E   , KC_R           , KC_T             ,                                        KC_Y               , KC_U   , KC_I   , KC_O   , LT(KL_EMACS,KC_P)   , 
+    KC_A        , KC_S   , KC_D   , KC_F           , KC_G             ,                                        KC_H               , KC_J   , KC_K   , KC_L   , LT(KL_SMB,KC_SCLN)  , 
+    LSFT_T(KC_Z), KC_X   , KC_C   , KC_V           , KC_B             ,                                        KC_N               , KC_M   , KC_COMM, KC_DOT , RSFT_T(KC_SLSH)     , 
+    KC_LCTL     , KC_LALT, KC_LGUI, LSFT_T(KC_LNG2), LT(KL_SMB,KC_SPC), LT(KL_EMACS,KC_LNG1), LSFT_T(KC_BSPC), LT(KL_NUMFN,KC_ENT), _______, _______, _______, KC_RSFT    
   ),
   // 記号専用レイヤー
   [KL_SMB] = LAYOUT_universal(
