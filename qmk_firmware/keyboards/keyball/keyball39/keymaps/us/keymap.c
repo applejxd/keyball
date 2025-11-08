@@ -159,7 +159,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // 記号専用レイヤー
   [KL_SMB] = LAYOUT_universal(
     S(KC_1)    , S(KC_2)  , S(KC_3)    , S(KC_4)    , S(KC_9)    ,                     S(KC_0)    , S(KC_7)    , S(KC_8)    , KC_QUOT    , S(KC_QUOT) ,
-    KC_GRV     , S(KC_6)  , S(KC_SLSH) , S(KC_EQL)  , KC_LBRC    ,                     KC_RBRC    , KC_MINS    , S(KC_GRV)  , KC_EQL     , S(KC_SCLN) ,
+    KC_GRV     , S(KC_6)  , S(KC_BSLS) , S(KC_EQL)  , KC_LBRC    ,                     KC_RBRC    , KC_MINS    , S(KC_GRV)  , KC_EQL     , S(KC_SCLN) ,
     XXXXXXX    , XXXXXXX  , S(KC_5)    , KC_BSLS    , S(KC_LBRC) ,                     S(KC_RBRC) , S(KC_MINS) , S(KC_COMM) , S(KC_DOT)  , S(KC_SLSH) ,
     _______    , _______  , _______    , KC_LSFT    , _______    , _______ ,  _______, _______    , _______    , _______    , _______    , _______   
   ),
@@ -172,10 +172,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
   // Emacs レイヤー (C-)
   [KL_EMACS] = LAYOUT_universal(
-    G(S(KC_F23)), C(KC_X)   , KC_END    , C(KC_R)  , C(KC_T) ,                           C(KC_V)  , C(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , 
-    KC_HOME     , C(KC_F)   , KC_DEL    , KC_RGHT  , ABORT   ,                           KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  ,C(KC_SCLN), 
-    G(KC_DOWN)  , OSL(KL_CX), C(KC_C)   , KC_PGDN  , KC_LEFT ,                           KC_DOWN  , KC_ENT   ,C(KC_COMM),C(KC_DOT) , C(KC_Z)  ,
-    _______     , C(KC_LALT), C(KC_LGUI), _______  , RGB_TOG , _______  ,    G(S(KC_S)), SET_MARK , _______  , _______  , _______  ,C(KC_RALT)
+    G(S(KC_F23)), C(KC_X)   , KC_END    , C(KC_R)  , C(KC_T) ,                     C(KC_V)  , C(KC_Z)  , KC_TAB   , C(KC_O)  , KC_UP    , 
+    KC_HOME     , C(KC_F)   , KC_DEL    , KC_RGHT  , ABORT   ,                     KC_BSPC  , KC_ENT   , CUT_LINE , C(KC_L)  ,C(KC_SCLN), 
+    G(KC_DOWN)  , OSL(KL_CX), C(KC_C)   , KC_PGDN  , KC_LEFT ,                     KC_DOWN  , KC_ENT   ,C(KC_COMM),C(KC_DOT) , C(KC_Z)  ,
+    _______     , C(KC_LALT), C(KC_LGUI), _______  , RGB_TOG , _______  , KC_PSCR, SET_MARK , _______  , _______  , _______  ,C(KC_RALT)
   ),
   // Emacs レイヤー (C-x)
   [KL_CX] = LAYOUT_universal(

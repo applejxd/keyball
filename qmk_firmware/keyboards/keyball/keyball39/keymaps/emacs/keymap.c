@@ -172,10 +172,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
   // Emacs レイヤー (C-)
   [KL_EMACS] = LAYOUT_universal(
-    G(S(KC_F23)), C(KC_X)   , KC_END    , C(KC_R), C(KC_T),                         C(KC_V) , C(KC_Z), KC_TAB    , C(KC_O)  , KC_UP     , 
-    KC_HOME     , C(KC_F)   , KC_DEL    , KC_RGHT, ABORT  ,                         KC_BSPC , KC_ENT , CUT_LINE  , C(KC_L)  , C(KC_SCLN),
-    G(KC_DOWN)  , OSL(KL_CX), C(KC_C)   , KC_PGDN, KC_LEFT,                         KC_DOWN , KC_ENT , C(KC_COMM), C(KC_DOT), C(KC_Z)   ,
-    _______     , C(KC_LALT), C(KC_LGUI), _______, RGB_TOG, _______,    G(S(KC_S)), SET_MARK, _______, _______   , _______  , C(KC_RSFT)
+    G(S(KC_F23)), C(KC_X)   , KC_END    , C(KC_R), C(KC_T),                   C(KC_V) , C(KC_Z), KC_TAB    , C(KC_O)  , KC_UP     , 
+    KC_HOME     , C(KC_F)   , KC_DEL    , KC_RGHT, ABORT  ,                   KC_BSPC , KC_ENT , CUT_LINE  , C(KC_L)  , C(KC_SCLN),
+    G(KC_DOWN)  , OSL(KL_CX), C(KC_C)   , KC_PGDN, KC_LEFT,                   KC_DOWN , KC_ENT , C(KC_COMM), C(KC_DOT), C(KC_Z)   ,
+    _______     , C(KC_LALT), C(KC_LGUI), _______, RGB_TOG, _______, KC_PSCR, SET_MARK, _______, _______   , _______  , C(KC_RSFT)
   ),
   // Emacs レイヤー (C-x)
   [KL_CX] = LAYOUT_universal(
