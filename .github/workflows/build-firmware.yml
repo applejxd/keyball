@@ -43,6 +43,15 @@ jobs:
         QMK_PYTHON=$(head -1 "$(which qmk)" | sed 's/^#!\s*//' | awk '{print $1}')
         "$QMK_PYTHON" -m pip install --break-system-packages -r __qmk__/requirements.txt
 
+    - name: Patch QMK for Python 3.14 compatibility
+      run: |
+        # ast.Num was removed in Python 3.14; replace with ast.Constant
+        sed -i \
+          -e 's/isinstance(node, ast\.Num)/isinstance(node, ast.Constant)/' \
+          -e 's/return node\.n/return node.value/' \
+          __qmk__/lib/python/qmk/math.py
+        grep -q 'ast.Constant' __qmk__/lib/python/qmk/math.py || { echo "ERROR: math.py patch failed"; exit 1; }
+
     - name: Compile and link
       run: qmk compile -j 4 -kb keyball/${{ inputs.keyboard }} -km ${{ inputs.keymap }}
 
