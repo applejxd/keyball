@@ -24,4 +24,19 @@ runs:
 
   - name: Setup QMK
     shell: bash
-    run: qmk setup --home ${{ inputs.path }} --yes
+    run: |
+      qmk setup --home ${{ inputs.path }} --yes
+
+      # Install requirements into the Python that QMK actually uses
+      QMK_PYTHON=$(head -1 "$(which qmk)" | sed 's/^#!\s*//' | awk '{print $1}')
+      [ -x "$QMK_PYTHON" ] || { echo "ERROR: could not detect QMK Python"; exit 1; }
+      "$QMK_PYTHON" -m pip install --break-system-packages -r ${{ inputs.path }}/requirements.txt
+
+      # Patch ast.Num → ast.Constant for Python ≥3.14 compatibility (QMK ≤0.22)
+      MATH_PY=${{ inputs.path }}/lib/python/qmk/math.py
+      if [ -f "$MATH_PY" ] && grep -q 'ast\.Num' "$MATH_PY"; then
+        sed -i \
+          -e 's/isinstance(node, ast\.Num)/isinstance(node, ast.Constant)/' \
+          -e 's/return node\.n/return node.value/' \
+          "$MATH_PY"
+      fi
