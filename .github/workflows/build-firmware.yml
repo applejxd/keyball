@@ -32,12 +32,14 @@ jobs:
 
     - name: Checkout qmk_firmware
       uses: ./.github/actions/checkout-qmk_firmware
+      with:
+        version: ${{ inputs.qmk_version }}
 
     - name: Install a link to own source
       run: ln -s $(pwd)/qmk_firmware/keyboards/keyball __qmk__/keyboards/keyball
 
     - name: Install missing python modules
-      run: /usr/bin/python3 -m pip install -r __qmk__/requirements.txt
+      run: /usr/bin/python3 -m pip install --break-system-packages -r __qmk__/requirements.txt
 
     - name: Compile and link
       run: qmk compile -j 4 -kb keyball/${{ inputs.keyboard }} -km ${{ inputs.keymap }}

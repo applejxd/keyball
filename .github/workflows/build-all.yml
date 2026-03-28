@@ -36,6 +36,12 @@ jobs:
             keymap:   emacs
           - keyboard: keyball39
             keymap:   us
+          - keyboard: keyball61
+            keymap:   emacs
+          - keyboard: keyball61
+            keymap:   us
+          - keyboard: keyball61
+            keymap:   39keys
           - keyboard: keyball46
             keymap:   test_Left
           - keyboard: keyball46
