@@ -30,19 +30,14 @@ enum custom_keycodes {
 /* Macros */
 /* ------ */
 
-// see https://docs.qmk.fm/reference_keymap_extras#header-files
-#include <sendstring_japanese.h>
-
 bool set_mark_active = false;  // マーク状態を保持
-uint8_t mod_state;
 // see https://docs.qmk.fm/feature_macros#using-macros-in-c-keymaps
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    mod_state = get_mods();
     switch (keycode) {
         case CUT_LINE:
             if (record->event.pressed) {
                 tap_code16(S(KC_END));
-                SEND_STRING(SS_DELAY(10));
+                wait_ms(10);
                 tap_code16(C(KC_X));
             }
             break;
@@ -189,13 +184,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // clang-format on
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    int heighest_layer_num = get_highest_layer(state);
+    uint8_t highest_layer = get_highest_layer(state);
 
-    if (heighest_layer_num == KL_SMB) {
+    if (highest_layer == KL_SMB) {
         // 垂直スクロール
         keyball_set_scroll_mode(true);
         keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_VERTICAL);
-    } else if (heighest_layer_num == KL_EMACS) {
+    } else if (highest_layer == KL_EMACS) {
         // 水平スクロール
         keyball_set_scroll_mode(true);
         keyball_set_scrollsnap_mode(KEYBALL_SCROLLSNAP_MODE_HORIZONTAL);
@@ -204,25 +199,24 @@ layer_state_t layer_state_set_user(layer_state_t state) {
         keyball_set_scroll_mode(false);
     }
 
-    uint8_t layer = biton32(state);
     // see https://github.com/qmk/qmk_firmware/blob/9c965bb62ec9ea84e68e0a1559dfbc35429df090/quantum/color.h#L49
     // see https://docs.qmk.fm/features/rgblight
     if (rgblight_is_enabled()) {
-        switch(layer) {
+        switch (highest_layer) {
             case 0:
-                rgblight_sethsv(HSV_WHITE);
+                rgblight_sethsv_noeeprom(HSV_WHITE);
                 break;
             case 1:
-                rgblight_sethsv(HSV_AZURE);
+                rgblight_sethsv_noeeprom(HSV_AZURE);
                 break;
             case 2:
-                rgblight_sethsv(HSV_BLUE);
+                rgblight_sethsv_noeeprom(HSV_BLUE);
                 break;
             case 3:
-                rgblight_sethsv(HSV_PURPLE);
+                rgblight_sethsv_noeeprom(HSV_PURPLE);
                 break;
             case 4:
-                rgblight_sethsv(HSV_MAGENTA);
+                rgblight_sethsv_noeeprom(HSV_MAGENTA);
                 break;
         }
     }

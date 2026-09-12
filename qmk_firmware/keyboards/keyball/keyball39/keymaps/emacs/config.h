@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// レイヤー数指定
+// VIA を有効化した場合の動的キーマップのレイヤー数
 // see https://mazcon.hatenablog.com/entry/2023/11/10/080000
 #define DYNAMIC_KEYMAP_LAYER_COUNT 5
 
@@ -43,7 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // ミュージックモードを無効化
 #define NO_MUSIC_MODE
-// ワンショットキーを無効化
+// KL_CX の OSL に必要なためワンショットキーを有効化
 #undef NO_ACTION_ONESHOT
 
 // すべてのエフェクトを無効化

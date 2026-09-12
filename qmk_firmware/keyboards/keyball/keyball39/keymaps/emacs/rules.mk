@@ -1,6 +1,6 @@
 OLED_ENABLE = yes
 
-# LED 未使用でもマウス移動のために必要?
+# レイヤー表示用。ポインティングデバイスの動作には不要。
 RGBLIGHT_ENABLE = yes
 RGBLIGHT_ANIMATIONS = no
 
