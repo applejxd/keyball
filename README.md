@@ -16,28 +16,23 @@ Keyboards in the family are:
 
 ## Where to Buy
 
-|Keyboard   |Yushakobo / 遊舎工房                       |Shirogane Lab / 白金ラボ                                   |
+|Keyboard   |Shirogane Lab / 白銀ラボ                                   |Yushakobo / 遊舎工房                       |
 |-----------|-------------------------------------------|-----------------------------------------------------------|
-|Keyball39  |<https://shop.yushakobo.jp/products/5357>  |<https://shirogane-lab.net/items/64b8f8693ee3fd0045280190> |
-|Keyball44  |<https://shop.yushakobo.jp/products/8337>  |<https://shirogane-lab.net/items/64b7a006eb6dbe00346cd0c5> |
-|Keyball61  |<https://shop.yushakobo.jp/products/5358>  |<https://shirogane-lab.net/items/64b8ed191435c1002bc4cd30> |
+|Keyball39  |<https://shiroganelab.com/products/keyball39> |<https://shop.yushakobo.jp/products/5357>  |
+|Keyball44  |<https://shiroganelab.com/products/keyball44> |<https://shop.yushakobo.jp/products/8337>  |
+|Keyball61  |<https://shiroganelab.com/products/keyball61> |<https://shop.yushakobo.jp/products/5358>  |
 
 ## Build Guide
 
 *   Keyball39:
     [English/英語](/keyball39/doc/rev1/buildguide_en.md),
-    [日本語/Japanese (ピンヘッダ版)](./keyball39/doc/rev1/buildguide_jp.md),
-    [日本語/Japanese (コンスルー版)](./keyball39/doc/rev1/buildguide_jp_conth.md)
-*   Keyball44: ~~English/英語~~ (Sorry, unavailable),
-    [日本語/Japanese (ピンヘッダ版)](./keyball44/doc/rev1/buildguide_jp.md),
-    [日本語/Japanese (コンスルー版)](./keyball44/doc/rev1/buildguide_jp_conth.md)
-*   Keyball46:
-    [English/英語](./keyball46/doc/rev1/buildguide_en.md),
-    [日本語/Japanese](./keyball46/doc/rev1/buildguide_jp.md)
+    [日本語/Japanese](./keyball39/doc/rev1/buildguide_jp.md)
+*   Keyball44:
+    [English/英語](./keyball44/doc/rev1/buildguide_en.md),
+    [日本語/Japanese](./keyball44/doc/rev1/buildguide_jp.md)
 *   Keyball61:
     [English/英語](./keyball61/doc/rev1/buildguide_en.md),
-    [日本語/Japanese (ピンヘッダ版)](./keyball61/doc/rev1/buildguide_jp.md),
-    [日本語/Japanese (コンスルー版)](./keyball61/doc/rev1/buildguide_jp_conth.md)
+    [日本語/Japanese](./keyball61/doc/rev1/buildguide_jp.md)
 
 ## Firmware
 
