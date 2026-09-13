@@ -1,0 +1,48 @@
+platform:
+  os: Windows
+  layout: JIS
+  notes:
+    - KC_LNG1、KC_LNG2、KC_INT1、KC_INT3はJIS配列を前提とする
+    - Win、Alt+F4、Alt+TabなどWindows向けショートカットを含む
+
+layers:
+  KL_BASE:
+    label: Base
+    purpose: 通常の文字入力
+  KL_SMB:
+    label: Symbols
+    purpose: 記号入力と垂直スクロール
+  KL_NUMFN:
+    label: Num/Fn
+    purpose: 左手テンキーと右手ファンクションキー
+  KL_EMACS:
+    label: Emacs
+    purpose: Emacs形式の編集・移動操作と水平スクロール
+  KL_CX:
+    label: C-x
+    purpose: C-x prefixに続く操作
+
+custom_keys:
+  CUT_LINE:
+    label: Cut line
+    description: カーソル位置から行末まで選択して切り取る
+  SET_MARK:
+    label: Set mark
+    description: Mark選択モードの有効・無効を切り替える
+  ABORT:
+    label: Abort
+    description: Mark中は選択を解除し、それ以外ではEscを送信する
+
+external_shortcuts:
+  - keys: Win+Shift+F23
+    purpose: 外部アプリ側の割り当てに依存するショートカット（用途未記録）
+
+workflows:
+  Mark:
+    - Set markで選択モードを切り替える
+    - 選択モード中にカーソル移動キーを押すとShift選択になる
+    - C、Ctrl+C、Ctrl+X、Ctrl+V、Deleteの押下後は選択モードを解除する
+    - Abortは選択モードを解除し、もう一度押すとEscとして動作する
+  C-x:
+    - EmacsレイヤーのC-xキーでワンショットのC-xレイヤーへ移動する
+    - 次の1キーを処理するとC-xレイヤーを解除し、元のアクティブレイヤーへ戻る

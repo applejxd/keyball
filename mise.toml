@@ -1,0 +1,10 @@
+[tools]
+uv = "latest"
+
+[tasks."keymap:generate"]
+description = "Generate the Keyball39 emacs keymap diagram"
+run = "uv run --locked scripts/generate_keymap_diagram.py"
+
+[tasks."keymap:check"]
+description = "Check that generated keymap diagrams are current"
+run = "uv run --locked scripts/generate_keymap_diagram.py --check"
