@@ -5,7 +5,7 @@
 対象:
 
 - `qmk_firmware/keyboards/keyball/keyball39/keymaps/emacs`
-- リポジトリ: `8cdfcc1c6fb8b76503d64500b32c25bb0f987068`
+- 初回調査のリポジトリ: `8cdfcc1c6fb8b76503d64500b32c25bb0f987068`
 - QMK Firmware: `0.22.14`
 - QMK CLI コンテナ:
   `ghcr.io/qmk/qmk_cli@sha256:2dc05fc9f32efebd6b05c2b8676ee548358bc7e151e9dbf4dac6b6eed4513b07`
@@ -21,6 +21,12 @@
 動作を変えない範囲の最適化を適用した結果、**27,614 / 28,672 bytes**、
 空き **1,058 bytes (3.69%)** になった。636 bytes を回収できたが、今後
 OLED、RGB、コンボなどに機能を追加するには、まだ余裕が大きいとはいえない。
+
+その後、[UX改善案の優先度1・案A](../change/keyball39-emacs-ux-improvements.md)として
+Auto Mouseを廃止した。最適化済み構成との比較ビルドでは
+**26,502 / 28,672 bytes**、空き **2,170 bytes (7.57%)** となり、
+さらに **1,112 bytes** を回収できた。これは自動レイヤー切り替えを廃止する
+機能変更であり、上記の動作を変えない最適化とは区別する。
 
 ## 適用した最適化
 
@@ -79,6 +85,33 @@ OLED、RGB、コンボなどに機能を追加するには、まだ余裕が大�
 | `DYNAMIC_KEYMAP_LAYER_COUNT` 削除 | 28,250 bytes | 422 bytes | 0 bytes |
 | 未使用 `mod_state` 削除 | 28,250 bytes | 422 bytes | 0 bytes |
 
+## Auto Mouse廃止後の再計測
+
+比較元は `b118a3261e573162d55741fb101c339aebe68c34` の最適化済み構成。
+QMK 0.22.14 (`ca4541699915b37cd1f253bbed51854627efd2ce`) と上記の
+固定コンテナ・AVR GCCを使用し、各ビルド前に `qmk clean` を実行した。
+2構成のコード差分は `emacs/config.h` の
+`POINTING_DEVICE_AUTO_MOUSE_ENABLE` と `AUTO_MOUSE_DEFAULT_LAYER` の削除だけである。
+
+| 構成 | Flash使用量 | Flash空き | 静的RAM使用量 |
+|---|---:|---:|---:|
+| 最適化済み・Auto Mouseあり | 27,614 bytes | 1,058 bytes | 1,518 bytes |
+| 最適化済み・Auto Mouse廃止 | 26,502 bytes | 2,170 bytes | 1,506 bytes |
+
+Flashは `.text + .data`、静的RAMは `.data + .bss` で計測した。
+Intel HEXのチェックサム・実データ量も検証し、ELFのFlash使用量と一致した。
+初回の独立計測と削減量は同じだったが、加算による推測ではなく再ビルドによる実測値である。
+
+実効マクロの差分はAuto Mouse関連7定義の削除のみで、
+Pointing Device、Combo、Key Override、OLED、RGB、split、One-shot、Tappingは
+維持されている。リンク済みELFからAuto Mouse関連シンボルが消え、
+マウス送信・5種類のクリックCombo・Markのシンボルが残っていることも確認した。
+
+右トラックボール1個の構成を前提とし、EEPROMの初期化や共有処理の変更は行っていない。
+保存形式に関する注意点と実機確認項目は
+[UX改善案](../change/keyball39-emacs-ux-improvements.md#eeprom互換性)に記載した。
+実機への書き込みと操作確認は未実施。
+
 ## 追加で容量が必要になった場合
 
 優先順位は次のとおり。
@@ -86,7 +119,7 @@ OLED、RGB、コンボなどに機能を追加するには、まだ余裕が大�
 1. OLED が不要なら無効化する。単独で約 4 KB と最も効果が大きい。
 2. レイヤー色表示が不要なら RGB Light を無効化する。トラックボールや
    Auto Mouse の動作には影響しない。
-3. Auto Mouse を使用していなければ無効化する。
+3. Auto Mouse は廃止済みのため、これ以上の削減対象にはしない。
 4. コンボと Key Override は削減効果が大きいが、現在のマウスボタン入力と
    Emacs 操作を直接失うため、単純な無効化は推奨しない。
 
@@ -122,3 +155,18 @@ The firmware size is fine - 27614/28672 (96%, 1058 bytes free)
 `keyboards/keyball/keyball39/via.json` に対して
 `The file "keyboards/keyball/keyball39/via.json" should not exist!` と報告され、
 lint 全体は失敗した。今回のキーマップ最適化に起因する指摘ではない。
+
+Auto Mouse廃止後の比較ビルドも両構成で成功した。
+
+```text
+baseline:
+The firmware size is fine - 27614/28672 (96%, 1058 bytes free)
+
+without-auto-mouse:
+The firmware size is fine - 26502/28672 (92%, 2170 bytes free)
+```
+
+両構成の `qmk lint -kb keyball/keyball39` は同じ既存の `via.json` 指摘で
+終了コード1となり、新たなlint指摘はなかった。
+生成リファレンスは `mise run keymap:generate` で更新し、
+`mise run keymap:check` で整合性を確認した。
