@@ -45,15 +45,55 @@ static void restore_mark_shift(void) {
     }
 }
 
-static void end_mark(void) {
+static void end_mark(bool send_report) {
     bool had_navigation = mark_navigation_count != 0;
     set_mark_active = false;
     memset(mark_navigation_keys, 0, sizeof(mark_navigation_keys));
     mark_navigation_count = 0;
     if (had_navigation) {
         del_weak_mods(MARK_SHIFT);
-        send_keyboard_report();
+        if (send_report) {
+            send_keyboard_report();
+        }
     }
+}
+
+static bool ends_mark(uint16_t keycode) {
+    if (keycode == KC_DEL) {
+        return true;
+    }
+
+    uint8_t mods = get_mods() | get_weak_mods() | get_oneshot_mods();
+    if (IS_QK_MODS(keycode)) {
+        uint8_t key_mods = QK_MODS_GET_MODS(keycode) & 0x0f;
+        mods |= (keycode & QK_RMODS_MIN) ? key_mods << 4 : key_mods;
+        keycode = QK_MODS_GET_BASIC_KEYCODE(keycode);
+    }
+
+    return (keycode == KC_C || keycode == KC_X || keycode == KC_V) &&
+           (mods & MOD_MASK_CTRL) && !(mods & (MOD_MASK_ALT | MOD_MASK_GUI));
+}
+
+static void send_edit_macro(uint16_t keycode) {
+    uint8_t mods = get_mods();
+    uint8_t weak_mods = get_weak_mods();
+    clear_mods();
+    clear_weak_mods();
+    // A pending one-shot is consumed by the macro, not applied to the next key.
+    clear_oneshot_mods();
+    send_keyboard_report();
+
+    if (keycode == CUT_LINE) {
+        tap_code16(S(KC_END));
+        wait_ms(10);
+        tap_code16(C(KC_X));
+    } else {
+        tap_code(KC_ESC);
+    }
+
+    set_mods(mods);
+    set_weak_mods(weak_mods);
+    send_keyboard_report();
 }
 
 bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -81,38 +121,33 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     restore_mark_shift();
 
+    if (record->event.pressed && ends_mark(keycode)) {
+        // Let the edit key send the report, so one-shot Ctrl reaches that key.
+        end_mark(false);
+    }
+
     switch (keycode) {
         case CUT_LINE:
+        case ABORT:
+            // Consume the event, but first let Key Override release its output.
+#ifdef KEY_OVERRIDE_ENABLE
+            process_key_override(keycode, record);
+#endif
             if (record->event.pressed) {
-                if (mark_navigation_count) {
-                    del_weak_mods(MARK_SHIFT);
-                    send_keyboard_report();
-                }
-                tap_code16(S(KC_END));
-                wait_ms(10);
-                tap_code16(C(KC_X));
-                if (mark_navigation_count) {
-                    restore_mark_shift();
-                    send_keyboard_report();
+                if (keycode == ABORT && set_mark_active) {
+                    // マーク解除時は ESC を送信しない
+                    end_mark(true);
+                } else {
+                    send_edit_macro(keycode);
                 }
             }
-            break;
+            return false;
         case SET_MARK:
             if (record->event.pressed) {
                 if (set_mark_active) {
-                    end_mark();
+                    end_mark(true);
                 } else {
                     set_mark_active = true;
-                }
-            }
-            break;
-        case ABORT:
-            if (record->event.pressed) {
-                if (set_mark_active) {
-                    // マーク解除時は ESC を送信しない
-                    end_mark();
-                } else {
-                    tap_code(KC_ESC);
                 }
             }
             break;
@@ -126,10 +161,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
                 restore_mark_shift();
             }
-            break;
-        case KC_C: case C(KC_C): case C(KC_X): case C(KC_V): case KC_DEL:
-            // 選択範囲を用いたアクションの後は選択解除
-            if (record->event.pressed) { end_mark(); }
             break;
         // case KC_W:
         //     if (record->event.pressed) {
@@ -154,20 +185,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // see https://docs.qmk.fm/features/key_overrides
 // see https://docs.qmk.fm/feature_advanced_keycodes
 #if defined(KEY_OVERRIDE_ENABLE) 
-const key_override_t alt_v_to_pageup = ko_make_basic(MOD_MASK_ALT, KC_V, KC_PGUP);
+#define ALT_OVERRIDE_OPTIONS (ko_option_activation_trigger_down | ko_option_activation_required_mod_down | ko_option_no_reregister_trigger)
+
+const key_override_t alt_v_to_pageup = ko_make_with_layers_negmods_and_options(MOD_MASK_ALT, KC_V, KC_PGUP, ~0, MOD_MASK_CG, ALT_OVERRIDE_OPTIONS);
 
 // ALT+B -> CTRL+LEFT
-const key_override_t alt_b_to_ctrl_left = ko_make_basic(MOD_MASK_ALT, KC_B, C(KC_LEFT));
+const key_override_t alt_b_to_ctrl_left = ko_make_with_layers_negmods_and_options(MOD_MASK_ALT, KC_B, C(KC_LEFT), ~0, MOD_MASK_CG, ALT_OVERRIDE_OPTIONS);
 // ALT+F -> CTRL+RIGHT
-const key_override_t alt_f_to_ctrl_right = ko_make_basic(MOD_MASK_ALT, KC_F, C(KC_RIGHT));
+const key_override_t alt_f_to_ctrl_right = ko_make_with_layers_negmods_and_options(MOD_MASK_ALT, KC_F, C(KC_RIGHT), ~0, MOD_MASK_CG, ALT_OVERRIDE_OPTIONS);
 // ALT+Y -> Win(GUI)+V
-const key_override_t alt_w_to_gui_v = ko_make_basic(MOD_MASK_ALT, KC_Y, LGUI(KC_V));
+const key_override_t alt_y_to_gui_v = ko_make_with_layers_negmods_and_options(MOD_MASK_ALT, KC_Y, LGUI(KC_V), ~0, MOD_MASK_CG, ALT_OVERRIDE_OPTIONS);
 
 const key_override_t **key_overrides = (const key_override_t *[]){
     &alt_v_to_pageup,
     &alt_b_to_ctrl_left,
     &alt_f_to_ctrl_right,
-    &alt_w_to_gui_v,
+    &alt_y_to_gui_v,
     NULL
 };
 #endif // KEY_OVERRIDE_ENABLE

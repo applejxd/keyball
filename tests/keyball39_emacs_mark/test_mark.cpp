@@ -115,6 +115,10 @@ class EmacsMark : public TestFixture {
         EXPECT_TRUE(found);
     }
 
+    void expect_exact_key_reports(uint8_t code, uint8_t mods) {
+        expect_key_reports(code, mods, static_cast<uint8_t>(~mods));
+    }
+
     bool has_key(uint8_t keycode) const {
         return std::find(std::begin(last_report.keys), std::end(last_report.keys), keycode) != std::end(last_report.keys);
     }
@@ -257,7 +261,7 @@ TEST_F(EmacsMark, ModTapShiftsSurviveMarkEnding) {
 }
 
 TEST_F(EmacsMark, EveryExistingEndingKeyClearsMarkBeforeItsReport) {
-    for (uint16_t code : std::initializer_list<uint16_t>{KC_C, C(KC_C), C(KC_X), C(KC_V), KC_DEL, set_mark}) {
+    for (uint16_t code : std::initializer_list<uint16_t>{C(KC_C), C(KC_X), C(KC_V), RCTL(KC_C), RCTL(KC_X), RCTL(KC_V), KC_DEL, set_mark}) {
         SCOPED_TRACE(code);
         KeymapKey end(0, 6, 0, code);
         set_keymap({mark, abort, left, right, lshift, rshift, end});
@@ -471,7 +475,10 @@ TEST_F(EmacsMark, CutLinePreservesPhysicalShiftAndHeldMouseButton) {
     EXPECT_EQ(mouse_reports.back().buttons, 1);
     reports.clear();
     tap(cut);
-    expect_key_reports(KC_X, MOD_BIT(KC_LCTL) | MOD_BIT(KC_LSFT));
+    expect_exact_key_reports(KC_END, MOD_BIT(KC_LSFT));
+    expect_exact_key_reports(KC_X, MOD_BIT(KC_LCTL));
+    EXPECT_EQ(get_mods(), MOD_BIT(KC_LSFT));
+    EXPECT_EQ(last_report.mods, MOD_BIT(KC_LSFT) | MOD_BIT(KC_RSFT));
     EXPECT_EQ(mouse_reports.back().buttons, 1);
     tap(abort);
     EXPECT_EQ(get_mods() & MOD_BIT(KC_LSFT), MOD_BIT(KC_LSFT));
@@ -592,4 +599,280 @@ TEST_F(EmacsMark, OneShotSyntheticReleaseDoesNotLeaveShiftOrUnderflow) {
     expect_shift(true);
     up(right);
     expect_shift(false);
+}
+
+TEST_F(EmacsMark, PhysicalCopyCutAndPasteEndMarkWithEitherControl) {
+    for (uint16_t control_code : {KC_LCTL, KC_RCTL}) {
+        for (uint16_t code : {KC_C, KC_X, KC_V}) {
+            SCOPED_TRACE(control_code);
+            SCOPED_TRACE(code);
+            KeymapKey control(0, 6, 0, control_code);
+            KeymapKey edit(0, 7, 0, code);
+            set_keymap({mark, abort, left, right, lshift, rshift, control, edit});
+            tap(mark);
+            down(left);
+            down(control);
+            reports.clear();
+            tap(edit);
+            EXPECT_FALSE(set_mark_active);
+            expect_key_reports(code, MOD_BIT(control_code), MOD_MASK_SHIFT);
+            EXPECT_EQ(get_mods(), MOD_BIT(control_code));
+            up(control);
+            up(left);
+        }
+    }
+}
+
+TEST_F(EmacsMark, PlainTypingAndAltGuiShortcutsDoNotEndMark) {
+    for (uint8_t mods : std::initializer_list<uint8_t>{0, MOD_LALT, MOD_LGUI, MOD_LCTL | MOD_LALT, MOD_LCTL | MOD_LGUI}) {
+        for (uint16_t code : {KC_C, KC_X, KC_V}) {
+            SCOPED_TRACE(mods);
+            SCOPED_TRACE(code);
+            KeymapKey edit(0, 6, 0, code);
+            set_keymap({mark, abort, left, right, lshift, rshift, edit});
+            tap(mark);
+            set_mods(mods);
+            tap(edit);
+            EXPECT_TRUE(set_mark_active);
+            clear_mods();
+            send_keyboard_report();
+            tap(abort);
+        }
+    }
+}
+
+TEST_F(EmacsMark, EncodedCopyWithAltOrGuiDoesNotEndMark) {
+    for (uint16_t code : {LCA(KC_C), RCTL(RALT(KC_X)), LCTL(LGUI(KC_V))}) {
+        SCOPED_TRACE(code);
+        KeymapKey edit(0, 6, 0, code);
+        set_keymap({mark, abort, left, right, lshift, rshift, edit});
+        tap(mark);
+        tap(edit);
+        EXPECT_TRUE(set_mark_active);
+        tap(abort);
+    }
+}
+
+TEST_F(EmacsMark, OneShotControlReachesEditKeyWhenEndingHeldNavigation) {
+    for (uint16_t code : {KC_C, KC_X, KC_V}) {
+        SCOPED_TRACE(code);
+        KeymapKey edit(0, 6, 0, code);
+        set_keymap({mark, abort, left, right, lshift, rshift, edit});
+        tap(mark);
+        down(left);
+        set_oneshot_mods(MOD_BIT(KC_RCTL));
+        reports.clear();
+        down(edit);
+        EXPECT_FALSE(set_mark_active);
+        expect_key_reports(code, MOD_BIT(KC_RCTL), MOD_MASK_SHIFT);
+        EXPECT_EQ(get_oneshot_mods(), 0);
+        up(edit);
+        up(left);
+    }
+}
+
+TEST_F(EmacsMark, MacrosIsolateAndRestoreAllPhysicalModifiers) {
+    for (uint16_t macro_code : {cut_line, abort_mark}) {
+        for (uint16_t modifier_code : std::initializer_list<uint16_t>{KC_LCTL, KC_RCTL, KC_LALT, KC_RALT, KC_LGUI, KC_RGUI, KC_LSFT, KC_RSFT, C(KC_LALT), C(KC_LGUI), C(KC_RSFT)}) {
+            SCOPED_TRACE(macro_code);
+            SCOPED_TRACE(modifier_code);
+            KeymapKey modifier(0, 6, 0, modifier_code);
+            KeymapKey macro(0, 7, 0, macro_code);
+            set_keymap({mark, abort, left, right, lshift, rshift, modifier, macro});
+            down(modifier);
+            uint8_t held_mods = get_mods();
+            ASSERT_NE(held_mods, 0);
+            reports.clear();
+            tap(macro);
+            if (macro_code == cut_line) {
+                expect_exact_key_reports(KC_END, MOD_BIT(KC_LSFT));
+                expect_exact_key_reports(KC_X, MOD_BIT(KC_LCTL));
+            } else {
+                expect_key_reports(KC_ESC, 0, 0xff);
+            }
+            EXPECT_EQ(get_mods(), held_mods);
+            EXPECT_EQ(last_report.mods, held_mods);
+            up(modifier);
+            EXPECT_EQ(last_report.mods, 0);
+        }
+    }
+}
+
+TEST_F(EmacsMark, MacrosConsumePendingOneShotModifiersWithoutApplyingThem) {
+    for (uint16_t macro_code : {cut_line, abort_mark}) {
+        SCOPED_TRACE(macro_code);
+        KeymapKey macro(0, 6, 0, macro_code);
+        KeymapKey a(0, 7, 0, KC_A);
+        set_keymap({mark, abort, left, right, lshift, rshift, macro, a});
+        set_oneshot_mods(MOD_MASK_CTRL | MOD_MASK_SHIFT | MOD_MASK_ALT | MOD_MASK_GUI);
+        reports.clear();
+        tap(macro);
+        if (macro_code == cut_line) {
+            expect_exact_key_reports(KC_END, MOD_BIT(KC_LSFT));
+            expect_exact_key_reports(KC_X, MOD_BIT(KC_LCTL));
+        } else {
+            expect_key_reports(KC_ESC, 0, 0xff);
+        }
+        EXPECT_EQ(get_oneshot_mods(), 0);
+        tap(a);
+        expect_key_reports(KC_A, 0, 0xff);
+    }
+}
+
+TEST_F(EmacsMark, MacrosRunAfterActiveAndDeferredOverridesAreReleased) {
+    for (uint16_t macro_code : {cut_line, abort_mark}) {
+        for (bool deferred : {false, true}) {
+            SCOPED_TRACE(macro_code);
+            SCOPED_TRACE(deferred);
+            KeymapKey alt(0, 6, 0, KC_LALT);
+            KeymapKey b(0, 7, 0, KC_B);
+            KeymapKey macro(0, 8, 0, macro_code);
+            set_keymap({mark, abort, left, right, lshift, rshift, alt, b, macro});
+            down(deferred ? b : alt);
+            down(deferred ? alt : b);
+            reports.clear();
+            tap(macro);
+            if (macro_code == cut_line) {
+                expect_exact_key_reports(KC_END, MOD_BIT(KC_LSFT));
+                expect_exact_key_reports(KC_X, MOD_BIT(KC_LCTL));
+            } else {
+                expect_key_reports(KC_ESC, 0, 0xff);
+            }
+            scan(600);
+            EXPECT_EQ(last_report.mods, MOD_BIT(KC_LALT));
+            EXPECT_FALSE(has_key(KC_LEFT));
+            EXPECT_FALSE(has_key(KC_B));
+            EXPECT_TRUE(key_override_is_enabled());
+            up(b);
+            up(alt);
+        }
+    }
+}
+
+TEST_F(EmacsMark, MacrosDoNotEnableDisabledOverrides) {
+    auto cut = extra(cut_line);
+    key_override_off();
+    tap(cut);
+    tap(abort);
+    EXPECT_FALSE(key_override_is_enabled());
+    key_override_on();
+}
+
+TEST_F(EmacsMark, MacroOnOneShotLayerRunsOnceAndConsumesLayer) {
+    auto oneshot = extra(OSL(4));
+    overlay(4, {KeymapKey(4, 2, 0, cut_line)});
+    tap(oneshot);
+    reports.clear();
+    down(left, 1200);
+    EXPECT_FALSE(is_oneshot_layer_active());
+    unsigned cut_reports = 0;
+    for (const auto& report : reports) {
+        cut_reports += std::count(std::begin(report.keys), std::end(report.keys), KC_X);
+    }
+    EXPECT_EQ(cut_reports, 1u);
+    up(left);
+}
+
+TEST_F(EmacsMark, AllFourOverridesSuppressEitherAltAndPreserveShift) {
+    for (uint16_t alt_code : {KC_LALT, KC_RALT}) {
+        for (uint16_t code : {KC_B, KC_F, KC_V, KC_Y}) {
+            for (bool shifted : {false, true}) {
+                SCOPED_TRACE(alt_code);
+                SCOPED_TRACE(code);
+                SCOPED_TRACE(shifted);
+                KeymapKey alt(0, 6, 0, alt_code);
+                KeymapKey trigger(0, 7, 0, code);
+                set_keymap({mark, abort, left, right, lshift, rshift, alt, trigger});
+                if (shifted) {
+                    down(rshift);
+                }
+                down(alt);
+                reports.clear();
+                down(trigger, 600);
+                uint8_t replacement = code == KC_B ? KC_LEFT : code == KC_F ? KC_RIGHT : code == KC_V ? KC_PGUP : KC_V;
+                uint8_t mods = code == KC_Y ? MOD_BIT(KC_LGUI) : code == KC_V ? 0 : MOD_BIT(KC_LCTL);
+                if (shifted) {
+                    mods |= MOD_BIT(KC_RSFT);
+                }
+                expect_exact_key_reports(replacement, mods);
+                EXPECT_FALSE(has_key(code));
+                up(trigger);
+                EXPECT_EQ(last_report.mods, MOD_BIT(alt_code) | (shifted ? MOD_BIT(KC_RSFT) : 0));
+                up(alt);
+                if (shifted) {
+                    up(rshift);
+                }
+            }
+        }
+    }
+}
+
+TEST_F(EmacsMark, ReleasingAltFirstNeverReregistersOriginalTrigger) {
+    for (uint16_t alt_code : {KC_LALT, KC_RALT}) {
+        for (uint16_t code : {KC_B, KC_F, KC_V, KC_Y}) {
+            for (unsigned held_ms : {1, 600}) {
+                SCOPED_TRACE(alt_code);
+                SCOPED_TRACE(code);
+                SCOPED_TRACE(held_ms);
+                KeymapKey alt(0, 6, 0, alt_code);
+                KeymapKey trigger(0, 7, 0, code);
+                set_keymap({mark, abort, left, right, lshift, rshift, alt, trigger});
+                down(alt);
+                down(trigger, held_ms);
+                reports.clear();
+                up(alt, 600);
+                for (const auto& report : reports) {
+                    EXPECT_EQ(std::count(std::begin(report.keys), std::end(report.keys), code), 0);
+                }
+                EXPECT_EQ(last_report.mods, 0);
+                up(trigger);
+            }
+        }
+    }
+}
+
+TEST_F(EmacsMark, ControlAndGuiBlockOverridesIncludingTheirRelease) {
+    for (uint16_t modifier_code : {KC_LCTL, KC_RCTL, KC_LGUI, KC_RGUI}) {
+        for (uint16_t code : {KC_B, KC_F, KC_V, KC_Y}) {
+            SCOPED_TRACE(modifier_code);
+            SCOPED_TRACE(code);
+            KeymapKey modifier(0, 6, 0, modifier_code);
+            KeymapKey alt(0, 7, 0, KC_LALT);
+            KeymapKey trigger(0, 8, 0, code);
+            set_keymap({mark, abort, left, right, lshift, rshift, modifier, alt, trigger});
+            down(modifier);
+            down(alt);
+            reports.clear();
+            down(trigger);
+            expect_key_reports(code, MOD_BIT(modifier_code) | MOD_BIT(KC_LALT));
+            up(modifier, 600);
+            EXPECT_TRUE(has_key(code));
+            EXPECT_EQ(last_report.mods, MOD_BIT(KC_LALT));
+            up(trigger);
+            up(alt);
+        }
+    }
+}
+
+TEST_F(EmacsMark, AddingControlOrGuiCancelsOverrideWithoutTypingOrReactivation) {
+    for (uint16_t modifier_code : {KC_LCTL, KC_RCTL, KC_LGUI, KC_RGUI}) {
+        SCOPED_TRACE(modifier_code);
+        KeymapKey modifier(0, 6, 0, modifier_code);
+        KeymapKey alt(0, 7, 0, KC_LALT);
+        KeymapKey b(0, 8, 0, KC_B);
+        set_keymap({mark, abort, left, right, lshift, rshift, modifier, alt, b});
+        down(alt);
+        down(b);
+        ASSERT_TRUE(has_key(KC_LEFT));
+        reports.clear();
+        down(modifier, 600);
+        EXPECT_FALSE(has_key(KC_LEFT));
+        up(modifier, 600);
+        EXPECT_FALSE(has_key(KC_LEFT));
+        for (const auto& report : reports) {
+            EXPECT_EQ(std::count(std::begin(report.keys), std::end(report.keys), KC_B), 0);
+        }
+        up(b);
+        up(alt);
+    }
 }

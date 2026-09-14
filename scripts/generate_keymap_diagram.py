@@ -653,16 +653,25 @@ def parse_key_overrides(
         "MOD_MASK_ALT": "Alt",
         "MOD_MASK_GUI": "Win",
     }
+    initializer_arguments = {
+        "ko_make_basic": 3,
+        "ko_make_with_layers": 4,
+        "ko_make_with_layers_and_negmods": 5,
+        "ko_make_with_layers_negmods_and_options": 6,
+    }
     rows: list[list[str]] = []
     source = remove_comments(keymap_source)
     for match in re.finditer(
-        r"const\s+key_override_t\s+[A-Za-z_][A-Za-z0-9_]*\s*=\s*ko_make_basic\s*\((.*?)\)\s*;",
+        r"const\s+key_override_t\s+[A-Za-z_][A-Za-z0-9_]*\s*=\s*"
+        r"(ko_make_basic|ko_make_with_layers|ko_make_with_layers_and_negmods|"
+        r"ko_make_with_layers_negmods_and_options)\s*\((.*?)\)\s*;",
         source,
         flags=re.DOTALL,
     ):
-        arguments = split_top_level(match.group(1))
-        if len(arguments) != 3:
-            continue
+        initializer = match.group(1)
+        arguments = split_top_level(match.group(2))
+        if len(arguments) != initializer_arguments[initializer]:
+            raise GenerationError(f"Invalid arguments for {initializer}: {arguments}")
         trigger_modifiers = [
             modifier_names.get(value.strip(), value.strip())
             for value in arguments[0].split("|")

@@ -172,6 +172,9 @@ unregister_code(KC_LSFT);
 
 終了条件は従来どおり `SET_MARK` の再押下、Mark中の `ABORT`、
 `KC_C`、`C(KC_C)`、`C(KC_X)`、`C(KC_V)`、`KC_DEL` の押下。
+これはMark改善時点の記録。後続のマクロ・Alt修正では、修飾なしの `KC_C` を対象外とし、
+物理・ワンショットCtrlによるコピー・切り取り・貼り付けも終了条件に追加した。
+現在の条件は[キーマップREADME](../../qmk_firmware/keyboards/keyball/keyball39/keymaps/emacs/README.md#mark選択モード)を参照。
 Mark中の `ABORT` はEscを送らず、選択モードだけを終了する。
 画面上の選択範囲を直接消す操作ではない。
 `CUT_LINE` はShift+End、10 ms待機、Ctrl+Xという順序と、Markを終了しない仕様を維持する。
@@ -189,6 +192,7 @@ Mark中の `ABORT` はEscを送らず、選択モードだけを終了する。
   必要なキーボードレポートを送る。コピー等の操作にMark由来のShiftを残さない。
 - `CUT_LINE` 実行中だけMarkの補助Shiftを外し、Ctrl+Xへの混入を防いでから復元する。
   物理Shiftやマウスボタンの保持状態は変更しない。
+  後続のマクロ・Alt修正では物理修飾も出力中だけ外し、終了後に復元するよう変更した。
 
 キー配置、Combo、Key Override、スクロール、ワンショットの定義は変更していない。
 `Alt+B/F/V` のKey Override出力や `Win+Down` 等のModifier付き移動を、

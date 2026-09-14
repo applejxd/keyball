@@ -51,10 +51,22 @@ workflows:
     - 移動キーを重ねて押した場合は、最後の対象キーを離すまで補助Shiftを維持する
     - 物理Shiftとは独立に管理し、Markを終了しても自分で押しているShiftは解除しない
     - Markの補助にはweak右Shiftを使い、既存のShift付き記号・マクロのweak左Shiftと分離する
-    - C、Ctrl+C、Ctrl+X、Ctrl+V、Deleteの押下後は選択モードを解除する
+    - Ctrl+C、Ctrl+X、Ctrl+Vはレイヤー定義・左右の物理Ctrl・ワンショットCtrlのいずれでも選択モードを解除する（Shift併用可、Alt・GUI併用は対象外）
+    - 修飾なしのC/X/Vでは選択モードを解除しない。Deleteの終了動作は従来どおり
     - Abortは選択モードとMarkの補助Shiftだけを解除し、もう一度押すとEscを送信する（画面上の選択範囲を直接消す操作ではない）
     - MarkがONでも移動キーを押していなければ文字やクリックに補助Shiftは付かないが、移動キーとの同時操作にはShiftが作用し得る
     - Win+DownなどModifier付き移動キーや、Alt+B・Alt+F・Alt+VのKey Override出力はMarkの対象に追加しない
+  Macros:
+    - Cut lineはShift+End、10 ms待機、Ctrl+Xの順に送信し、MarkがOFFのAbortは修飾なしのEscを送信する
+    - 実行中だけ物理・補助修飾キーを外し、終了後に復元する。マウスボタンの保持状態は変更しない
+    - 待機中のワンショット修飾はマクロが消費し、マクロにも次のキーにも付加しない
+    - 有効中・遅延中のKey Overrideは出力前に解除する。C-xワンショットでもマクロは1回だけ実行する
+    - Cut lineはMarkを終了せず、長押しリピート・行末での改行削除・kill ringへの連結は行わない
+  Alt Override:
+    - 左右どちらのAltでも発火し、Shiftを併用すると出力にもShiftが付く
+    - Ctrl・GUIの保持中は変換しない。Ctrl・GUIを離しただけでも変換を開始しない
+    - 変換中にCtrl・GUIを押すと変換を終了する。Altを先に離した場合も元の文字は再送しない
+    - 対象は全レイヤーだが、各レイヤーの実際のキーコードがトリガーに一致する場合のみ発火する
   C-x:
     - EmacsレイヤーのC-xキーでワンショットのC-xレイヤーへ移動する
     - 次の1キーを処理するとC-xレイヤーを解除し、元のアクティブレイヤーへ戻る
