@@ -64,10 +64,25 @@
 
 | 入力 | 出力 |
 |---|---|
-| Alt+V | PgUp |
-| Alt+B | Ctrl+Left |
-| Alt+F | Ctrl+Right |
+| Alt+V（Mark中） | Shift+PgUp |
+| Alt+B（Mark中） | Ctrl+Shift+Left |
+| Alt+F（Mark中） | Ctrl+Shift+Right |
+| Alt+Shift+,（Mark中） | Ctrl+Shift+Home |
+| Alt+Shift+.（Mark中） | Ctrl+Shift+End |
+| Alt+<（Mark中） | Ctrl+Shift+Home |
+| Alt+>（Mark中） | Ctrl+Shift+End |
+| Alt+V（Mark OFF） | PgUp |
+| Alt+B（Mark OFF） | Ctrl+Left |
+| Alt+F（Mark OFF） | Ctrl+Right |
+| Alt+Shift+,（Mark OFF） | Ctrl+Home |
+| Alt+Shift+.（Mark OFF） | Ctrl+End |
+| Alt+<（Mark OFF） | Ctrl+Home |
+| Alt+>（Mark OFF） | Ctrl+End |
 | Alt+Y | Win+V |
+| Alt+W | Copy region |
+| Alt+D | Cut word |
+| Alt+BS | Cut prev word |
+| Alt+@ | Mark word |
 
 ## カスタムキー
 
@@ -76,6 +91,10 @@
 | CUT_LINE | Cut line | カーソル位置から行末まで選択して切り取る |
 | SET_MARK | Set mark | Mark選択モードの有効・無効を切り替える |
 | ABORT | Abort | Mark中は選択モードだけを解除し、それ以外ではEscを送信する |
+| COPY_REGION | Copy region | Ctrl+Cで選択範囲をコピーし、Markを終了する |
+| CUT_WORD | Cut word | Ctrl+Shift+Rightで選択してCtrl+Xで切り取り、Markを終了する |
+| CUT_WORD_BACKWARD | Cut prev word | Ctrl+Shift+Leftで選択してCtrl+Xで切り取り、Markを終了する |
+| MARK_WORD | Mark word | Ctrl+Shift+Rightで次の単語を選択し、Markを有効にする |
 
 ## RGBレイヤー色
 
@@ -147,7 +166,9 @@
 8. 修飾なしのC/X/Vでは選択モードを解除しない。Deleteの終了動作は従来どおり
 9. Abortは選択モードとMarkの補助Shiftだけを解除し、もう一度押すとEscを送信する（画面上の選択範囲を直接消す操作ではない）
 10. MarkがONでも移動キーを押していなければ文字やクリックに補助Shiftは付かないが、移動キーとの同時操作にはShiftが作用し得る
-11. Win+DownなどModifier付き移動キーや、Alt+B・Alt+F・Alt+VのKey Override出力はMarkの対象に追加しない
+11. Alt+B/F/VとAlt+<、Alt+>もMark中はShift選択になる。Win+Downなど、それ以外のModifier付き移動は対象外
+12. Alt移動の選択用ShiftはQMKのOverride専用修飾として管理し、通常移動のweak右Shiftや物理Shiftと分離する
+13. Alt+WのコピーとAlt+D/Backspaceの単語切り取りでMarkを終了し、Alt+@の単語選択でMarkを有効にする
 
 ### Macros
 
@@ -156,13 +177,19 @@
 3. 待機中のワンショット修飾はマクロが消費し、マクロにも次のキーにも付加しない
 4. 有効中・遅延中のKey Overrideは出力前に解除する。C-xワンショットでもマクロは1回だけ実行する
 5. Cut lineはMarkを終了せず、長押しリピート・行末での改行削除・kill ringへの連結は行わない
+6. 単語切り取りはCtrl+Shift+Right/Left、10 ms待機、Ctrl+Xの順で送信する。単語境界はWindowsアプリに依存する
+7. コピー・単語切り取り・単語選択はAltを先に押し、文字キー押下時に1回実行する。解放時や長押しでは再実行しない
 
 ### Alt Override
 
-1. 左右どちらのAltでも発火し、Shiftを併用すると出力にもShiftが付く
-2. Ctrl・GUIの保持中は変換しない。Ctrl・GUIを離しただけでも変換を開始しない
-3. 変換中にCtrl・GUIを押すと変換を終了する。Altを先に離した場合も元の文字は再送しない
-4. 対象は全レイヤーだが、各レイヤーの実際のキーコードがトリガーに一致する場合のみ発火する
+1. 左右どちらのAltでも発火する。Alt+B/F/V/Yは物理Shiftを併用すると出力にもShiftが付く
+2. Alt+<、Alt+>はCtrl+Home/Endへ変換し、入力側のShiftを取り除く。Mark中だけ選択用Shiftを付加する
+3. Alt+<、Alt+>はBaseのShift+Comma/DotとSymbolsの<、>の両方で使用できる
+4. Alt+@はJISのSymbolsレイヤーの@キーを使用する。Alt+Shift+2ではない
+5. Ctrl・GUIの保持中は変換しない。Ctrl・GUIを離しただけでも変換を開始しない
+6. 変換中にCtrl・GUIを押すと変換を終了する。Altを先に離した場合も元の文字は再送しない
+7. 対象は全レイヤーだが、各レイヤーの実際のキーコードがトリガーに一致する場合のみ発火する
+8. Mark ON/OFFの移動Overrideは相互排他的に有効化し、追加の修飾キー操作で選択用Shiftを失わないようにする
 
 ### C-x
 

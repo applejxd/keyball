@@ -197,6 +197,8 @@ Mark中の `ABORT` はEscを送らず、選択モードだけを終了する。
 キー配置、Combo、Key Override、スクロール、ワンショットの定義は変更していない。
 `Alt+B/F/V` のKey Override出力や `Win+Down` 等のModifier付き移動を、
 新たにMark対象へ広げることもしていない。
+これは初期のMark改善時点の範囲。後続の機能追加では `Alt+B/F/V` と
+`Alt+<`、`Alt+>` もMark選択に対応した。現在の操作はキーマップREADMEを参照。
 
 補助ShiftもPCには通常のShiftとして届くため、移動キーを保持しながら文字や
 クリックを操作すると、そちらにもShiftが作用し得る。

@@ -25,7 +25,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 enum custom_keycodes {
     CUT_LINE = KEYBALL_SAFE_RANGE,
     SET_MARK,   
-    ABORT
+    ABORT,
+    COPY_REGION,
+    CUT_WORD,
+    CUT_WORD_BACKWARD,
+    MARK_WORD
 };
 
 /* ------ */
@@ -33,11 +37,17 @@ enum custom_keycodes {
 /* ------ */
 
 bool set_mark_active = false;  // マーク状態を保持
+static bool mark_inactive = true;
 static matrix_row_t mark_navigation_keys[MATRIX_ROWS];
 static uint8_t mark_navigation_count;
 
 // S(kc) and CUT_LINE use weak left Shift; reserve weak right Shift for Mark.
 #define MARK_SHIFT MOD_BIT(KC_RSFT)
+
+static void set_mark_mode(bool active) {
+    set_mark_active = active;
+    mark_inactive = !active;
+}
 
 static void restore_mark_shift(void) {
     if (mark_navigation_count) {
@@ -47,7 +57,7 @@ static void restore_mark_shift(void) {
 
 static void end_mark(bool send_report) {
     bool had_navigation = mark_navigation_count != 0;
-    set_mark_active = false;
+    set_mark_mode(false);
     memset(mark_navigation_keys, 0, sizeof(mark_navigation_keys));
     mark_navigation_count = 0;
     if (had_navigation) {
@@ -75,6 +85,12 @@ static bool ends_mark(uint16_t keycode) {
 }
 
 static void send_edit_macro(uint16_t keycode) {
+    if (keycode == COPY_REGION || keycode == CUT_WORD || keycode == CUT_WORD_BACKWARD) {
+        end_mark(false);
+    } else if (keycode == MARK_WORD) {
+        set_mark_mode(true);
+    }
+
     uint8_t mods = get_mods();
     uint8_t weak_mods = get_weak_mods();
     clear_mods();
@@ -83,12 +99,23 @@ static void send_edit_macro(uint16_t keycode) {
     clear_oneshot_mods();
     send_keyboard_report();
 
-    if (keycode == CUT_LINE) {
-        tap_code16(S(KC_END));
-        wait_ms(10);
-        tap_code16(C(KC_X));
-    } else {
-        tap_code(KC_ESC);
+    switch (keycode) {
+        case CUT_LINE:
+        case CUT_WORD:
+        case CUT_WORD_BACKWARD:
+            tap_code16(keycode == CUT_LINE ? S(KC_END) : keycode == CUT_WORD ? C(S(KC_RIGHT)) : C(S(KC_LEFT)));
+            wait_ms(10);
+            tap_code16(C(KC_X));
+            break;
+        case COPY_REGION:
+            tap_code16(C(KC_C));
+            break;
+        case MARK_WORD:
+            tap_code16(C(S(KC_RIGHT)));
+            break;
+        case ABORT:
+            tap_code(KC_ESC);
+            break;
     }
 
     set_mods(mods);
@@ -129,6 +156,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case CUT_LINE:
         case ABORT:
+        case COPY_REGION:
+        case CUT_WORD:
+        case CUT_WORD_BACKWARD:
+        case MARK_WORD:
             // Consume the event, but first let Key Override release its output.
 #ifdef KEY_OVERRIDE_ENABLE
             process_key_override(keycode, record);
@@ -147,7 +178,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 if (set_mark_active) {
                     end_mark(true);
                 } else {
-                    set_mark_active = true;
+                    set_mark_mode(true);
                 }
             }
             break;
@@ -162,17 +193,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 restore_mark_shift();
             }
             break;
-        // case KC_W:
-        //     if (record->event.pressed) {
-        //         if (mod_state & MOD_MASK_ALT) {
-        //             del_mods(MOD_MASK_ALT);
-        //             tap_code16(C(KC_C));    // w/o alt key
-        //             set_mods(mod_state);
-        //             set_mark_active = false;
-        //             return false;
-        //         }
-        //     }
-        //     return true;
     }
     return true;
 }
@@ -187,20 +207,85 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #if defined(KEY_OVERRIDE_ENABLE) 
 #define ALT_OVERRIDE_OPTIONS (ko_option_activation_trigger_down | ko_option_activation_required_mod_down | ko_option_no_reregister_trigger)
 
-const key_override_t alt_v_to_pageup = ko_make_with_layers_negmods_and_options(MOD_MASK_ALT, KC_V, KC_PGUP, ~0, MOD_MASK_CG, ALT_OVERRIDE_OPTIONS);
+// Mutually exclusive rules keep modifier events from replacing a Mark rule with its plain counterpart.
+#define EMACS_NAV_OVERRIDE(mods, key, output, condition) { \
+    .trigger_mods = (mods),                              \
+    .trigger = (key),                                    \
+    .replacement = (output),                            \
+    .layers = ~0,                                       \
+    .negative_mod_mask = MOD_MASK_CG,                    \
+    .suppressed_mods = (mods) | ((IS_QK_MODS((uint16_t)(key)) && ((key) & QK_LSFT)) ? MOD_MASK_SHIFT : 0), \
+    .options = ALT_OVERRIDE_OPTIONS,                     \
+    .enabled = (condition),                             \
+}
+
+static bool emacs_macro_action(bool activated, void *context) {
+    if (activated) {
+        send_edit_macro((uint16_t)(uintptr_t)context);
+    }
+    return false;
+}
+
+// Editing macros fire only on the trigger press, never on a later modifier press.
+#define EMACS_MACRO_OVERRIDE(mods, key, output) {                                        \
+    .trigger_mods = (mods),                                                             \
+    .trigger = (key),                                                                   \
+    .replacement = (output),                                                           \
+    .layers = ~0,                                                                      \
+    .negative_mod_mask = MOD_MASK_CG,                                                   \
+    .suppressed_mods = (mods),                                                          \
+    .options = ko_option_activation_trigger_down | ko_option_no_reregister_trigger,     \
+    .custom_action = emacs_macro_action,                                                \
+    .context = (void *)(uintptr_t)(output),                                             \
+}
+
+// Selection Shift uses QMK's override modifiers, even when input Shift is suppressed.
+const key_override_t mark_alt_v_to_pageup = EMACS_NAV_OVERRIDE(MOD_MASK_ALT, KC_V, S(KC_PGUP), &set_mark_active);
+const key_override_t mark_alt_b_to_ctrl_left = EMACS_NAV_OVERRIDE(MOD_MASK_ALT, KC_B, C(S(KC_LEFT)), &set_mark_active);
+const key_override_t mark_alt_f_to_ctrl_right = EMACS_NAV_OVERRIDE(MOD_MASK_ALT, KC_F, C(S(KC_RIGHT)), &set_mark_active);
+const key_override_t mark_alt_less_to_home = EMACS_NAV_OVERRIDE(MOD_MASK_ALT | MOD_MASK_SHIFT, KC_COMM, C(S(KC_HOME)), &set_mark_active);
+const key_override_t mark_alt_greater_to_end = EMACS_NAV_OVERRIDE(MOD_MASK_ALT | MOD_MASK_SHIFT, KC_DOT, C(S(KC_END)), &set_mark_active);
+const key_override_t mark_alt_symbol_less_to_home = EMACS_NAV_OVERRIDE(MOD_MASK_ALT, S(KC_COMM), C(S(KC_HOME)), &set_mark_active);
+const key_override_t mark_alt_symbol_greater_to_end = EMACS_NAV_OVERRIDE(MOD_MASK_ALT, S(KC_DOT), C(S(KC_END)), &set_mark_active);
+
+const key_override_t alt_v_to_pageup = EMACS_NAV_OVERRIDE(MOD_MASK_ALT, KC_V, KC_PGUP, &mark_inactive);
 
 // ALT+B -> CTRL+LEFT
-const key_override_t alt_b_to_ctrl_left = ko_make_with_layers_negmods_and_options(MOD_MASK_ALT, KC_B, C(KC_LEFT), ~0, MOD_MASK_CG, ALT_OVERRIDE_OPTIONS);
+const key_override_t alt_b_to_ctrl_left = EMACS_NAV_OVERRIDE(MOD_MASK_ALT, KC_B, C(KC_LEFT), &mark_inactive);
 // ALT+F -> CTRL+RIGHT
-const key_override_t alt_f_to_ctrl_right = ko_make_with_layers_negmods_and_options(MOD_MASK_ALT, KC_F, C(KC_RIGHT), ~0, MOD_MASK_CG, ALT_OVERRIDE_OPTIONS);
+const key_override_t alt_f_to_ctrl_right = EMACS_NAV_OVERRIDE(MOD_MASK_ALT, KC_F, C(KC_RIGHT), &mark_inactive);
+const key_override_t alt_less_to_home = EMACS_NAV_OVERRIDE(MOD_MASK_ALT | MOD_MASK_SHIFT, KC_COMM, C(KC_HOME), &mark_inactive);
+const key_override_t alt_greater_to_end = EMACS_NAV_OVERRIDE(MOD_MASK_ALT | MOD_MASK_SHIFT, KC_DOT, C(KC_END), &mark_inactive);
+const key_override_t alt_symbol_less_to_home = EMACS_NAV_OVERRIDE(MOD_MASK_ALT, S(KC_COMM), C(KC_HOME), &mark_inactive);
+const key_override_t alt_symbol_greater_to_end = EMACS_NAV_OVERRIDE(MOD_MASK_ALT, S(KC_DOT), C(KC_END), &mark_inactive);
 // ALT+Y -> Win(GUI)+V
 const key_override_t alt_y_to_gui_v = ko_make_with_layers_negmods_and_options(MOD_MASK_ALT, KC_Y, LGUI(KC_V), ~0, MOD_MASK_CG, ALT_OVERRIDE_OPTIONS);
 
+const key_override_t alt_w_to_copy = EMACS_MACRO_OVERRIDE(MOD_MASK_ALT, KC_W, COPY_REGION);
+const key_override_t alt_d_to_cut_word = EMACS_MACRO_OVERRIDE(MOD_MASK_ALT, KC_D, CUT_WORD);
+const key_override_t alt_backspace_to_cut_word = EMACS_MACRO_OVERRIDE(MOD_MASK_ALT, KC_BSPC, CUT_WORD_BACKWARD);
+const key_override_t alt_at_to_mark_word = EMACS_MACRO_OVERRIDE(MOD_MASK_ALT, KC_LBRC, MARK_WORD);
+
 const key_override_t **key_overrides = (const key_override_t *[]){
+    &mark_alt_v_to_pageup,
+    &mark_alt_b_to_ctrl_left,
+    &mark_alt_f_to_ctrl_right,
+    &mark_alt_less_to_home,
+    &mark_alt_greater_to_end,
+    &mark_alt_symbol_less_to_home,
+    &mark_alt_symbol_greater_to_end,
     &alt_v_to_pageup,
     &alt_b_to_ctrl_left,
     &alt_f_to_ctrl_right,
+    &alt_less_to_home,
+    &alt_greater_to_end,
+    &alt_symbol_less_to_home,
+    &alt_symbol_greater_to_end,
     &alt_y_to_gui_v,
+    &alt_w_to_copy,
+    &alt_d_to_cut_word,
+    &alt_backspace_to_cut_word,
+    &alt_at_to_mark_word,
     NULL
 };
 #endif // KEY_OVERRIDE_ENABLE

@@ -22,6 +22,10 @@ namespace {
 constexpr uint16_t cut_line = KEYBALL_SAFE_RANGE;
 constexpr uint16_t set_mark = KEYBALL_SAFE_RANGE + 1;
 constexpr uint16_t abort_mark = KEYBALL_SAFE_RANGE + 2;
+constexpr uint16_t copy_region = KEYBALL_SAFE_RANGE + 3;
+constexpr uint16_t cut_word = KEYBALL_SAFE_RANGE + 4;
+constexpr uint16_t cut_word_backward = KEYBALL_SAFE_RANGE + 5;
+constexpr uint16_t mark_word = KEYBALL_SAFE_RANGE + 6;
 }
 
 class EmacsMark : public TestFixture {
@@ -117,6 +121,12 @@ class EmacsMark : public TestFixture {
 
     void expect_exact_key_reports(uint8_t code, uint8_t mods) {
         expect_key_reports(code, mods, static_cast<uint8_t>(~mods));
+    }
+
+    void expect_no_key_reports(uint8_t code) {
+        for (const auto& report : reports) {
+            EXPECT_EQ(std::count(std::begin(report.keys), std::end(report.keys), code), 0);
+        }
     }
 
     bool has_key(uint8_t keycode) const {
@@ -523,7 +533,7 @@ TEST_F(EmacsMark, ModifiedNavigationDoesNotActivateMarkShift) {
     expect_shift(false);
 }
 
-TEST_F(EmacsMark, AltOverridesDoNotBecomeMarkNavigation) {
+TEST_F(EmacsMark, MetaNavigationSelectsWhileMarkIsActive) {
     auto alt = extra(KC_LALT);
     for (uint16_t code : {KC_B, KC_F, KC_V}) {
         SCOPED_TRACE(code);
@@ -536,10 +546,11 @@ TEST_F(EmacsMark, AltOverridesDoNotBecomeMarkNavigation) {
         reports.clear();
         down(trigger);
         uint8_t replacement = code == KC_B ? KC_LEFT : code == KC_F ? KC_RIGHT : KC_PGUP;
-        expect_key_reports(replacement, code == KC_V ? 0 : MOD_BIT(KC_LCTL), MOD_MASK_SHIFT);
+        expect_exact_key_reports(replacement, MOD_BIT(KC_LSFT) | (code == KC_V ? 0 : MOD_BIT(KC_LCTL)));
         up(trigger);
         up(alt);
         expect_shift(false);
+        EXPECT_TRUE(set_mark_active);
     }
 }
 
@@ -875,4 +886,379 @@ TEST_F(EmacsMark, AddingControlOrGuiCancelsOverrideWithoutTypingOrReactivation) 
         up(b);
         up(alt);
     }
+}
+
+TEST_F(EmacsMark, MetaCopyEndsMarkAndDoesNotCopyWithShift) {
+    for (uint16_t alt_code : {KC_LALT, KC_RALT}) {
+        for (bool marking : {false, true}) {
+            SCOPED_TRACE(alt_code);
+            SCOPED_TRACE(marking);
+            KeymapKey alt(0, 6, 0, alt_code);
+            KeymapKey w(0, 7, 0, KC_W);
+            set_keymap({mark, abort, left, right, lshift, rshift, alt, w});
+            if (marking) {
+                tap(mark);
+                down(left);
+            }
+            down(rshift);
+            down(alt);
+            reports.clear();
+            tap(w);
+            expect_exact_key_reports(KC_C, MOD_BIT(KC_LCTL));
+            expect_no_key_reports(KC_W);
+            EXPECT_FALSE(set_mark_active);
+            EXPECT_EQ(last_report.mods, MOD_BIT(alt_code) | MOD_BIT(KC_RSFT));
+            if (marking) {
+                EXPECT_TRUE(has_key(KC_LEFT));
+                up(left);
+            }
+            up(alt);
+            up(rshift);
+        }
+    }
+}
+
+TEST_F(EmacsMark, MetaWordCutsSelectThenCutAndEndMark) {
+    for (uint16_t trigger_code : {KC_D, KC_BSPC}) {
+        SCOPED_TRACE(trigger_code);
+        KeymapKey alt(0, 6, 0, KC_LALT);
+        KeymapKey trigger(0, 7, 0, trigger_code);
+        set_keymap({mark, abort, left, right, lshift, rshift, alt, trigger});
+        tap(mark);
+        down(rshift);
+        down(alt);
+        reports.clear();
+        timed_reports.clear();
+        tap(trigger);
+        uint8_t navigation = trigger_code == KC_D ? KC_RIGHT : KC_LEFT;
+        expect_exact_key_reports(navigation, MOD_BIT(KC_LCTL) | MOD_BIT(KC_LSFT));
+        expect_exact_key_reports(KC_X, MOD_BIT(KC_LCTL));
+        expect_no_key_reports(trigger_code);
+        EXPECT_FALSE(set_mark_active);
+        EXPECT_EQ(last_report.mods, MOD_BIT(KC_LALT) | MOD_BIT(KC_RSFT));
+        bool selected = false;
+        auto selection_released = timed_reports.cend();
+        auto cut_pressed = timed_reports.cend();
+        for (auto it = timed_reports.cbegin(); it != timed_reports.cend(); ++it) {
+            if (std::count(std::begin(it->report.keys), std::end(it->report.keys), navigation)) {
+                selected = true;
+            } else if (selected && selection_released == timed_reports.cend()) {
+                selection_released = it;
+            }
+            if (std::count(std::begin(it->report.keys), std::end(it->report.keys), KC_X)) {
+                cut_pressed = it;
+                break;
+            }
+        }
+        ASSERT_NE(selection_released, timed_reports.cend());
+        ASSERT_NE(cut_pressed, timed_reports.cend());
+        EXPECT_EQ(cut_pressed->time - selection_released->time, 10);
+        up(alt);
+        up(rshift);
+    }
+}
+
+TEST_F(EmacsMark, MetaAtSelectsAWordAndKeepsMarkForFurtherNavigation) {
+    auto alt = extra(KC_LALT);
+    auto at = extra(KC_LBRC, 7); // JIS @, also used by the production Symbols layer.
+    down(alt);
+    reports.clear();
+    tap(at);
+    expect_exact_key_reports(KC_RIGHT, MOD_BIT(KC_LCTL) | MOD_BIT(KC_LSFT));
+    expect_no_key_reports(KC_LBRC);
+    EXPECT_TRUE(set_mark_active);
+    up(alt);
+    expect_shift(false);
+    down(left);
+    expect_shift(true);
+    up(left);
+    EXPECT_TRUE(set_mark_active);
+}
+
+TEST_F(EmacsMark, MetaDocumentNavigationConsumesInputShiftButPreservesMark) {
+    for (bool marking : {false, true}) {
+        for (uint16_t code : std::initializer_list<uint16_t>{KC_COMM, KC_DOT, S(KC_COMM), S(KC_DOT)}) {
+            SCOPED_TRACE(marking);
+            SCOPED_TRACE(code);
+            KeymapKey alt(0, 6, 0, KC_LALT);
+            KeymapKey trigger(0, 7, 0, code);
+            set_keymap({mark, abort, left, right, lshift, rshift, alt, trigger});
+            if (marking) {
+                tap(mark);
+            }
+            down(lshift);
+            down(alt);
+            reports.clear();
+            down(trigger, COMBO_TERM + 2);
+            uint8_t replacement = QK_MODS_GET_BASIC_KEYCODE(code) == KC_COMM ? KC_HOME : KC_END;
+            expect_exact_key_reports(replacement, MOD_BIT(KC_LCTL) | (marking ? MOD_BIT(KC_LSFT) : 0));
+            expect_no_key_reports(QK_MODS_GET_BASIC_KEYCODE(code));
+            up(trigger);
+            EXPECT_EQ(last_report.mods, MOD_BIT(KC_LALT) | MOD_BIT(KC_LSFT));
+            up(alt);
+            up(lshift);
+            EXPECT_EQ(set_mark_active, marking);
+            if (marking) {
+                tap(abort);
+            }
+        }
+    }
+}
+
+TEST_F(EmacsMark, MetaNavigationStaysSelectedAcrossModifierEventsAndBareNavigation) {
+    auto alt = extra(KC_LALT);
+    auto f = extra(KC_F, 7);
+    tap(mark);
+    down(alt);
+    down(f);
+    down(rshift);
+    up(rshift);
+    EXPECT_TRUE(has_key(KC_RIGHT));
+    expect_shift(true);
+    down(left);
+    EXPECT_FALSE(has_key(KC_RIGHT));
+    expect_shift(true);
+    up(f);
+    EXPECT_TRUE(has_key(KC_LEFT));
+    expect_shift(true);
+    up(left);
+    expect_shift(false);
+    up(alt);
+}
+
+TEST_F(EmacsMark, MetaDocumentSelectionSurvivesBareNavigationRelease) {
+    auto alt = extra(KC_LALT);
+    auto comma = extra(KC_COMM, 7);
+    tap(mark);
+    down(left);
+    down(lshift);
+    down(alt);
+    down(comma, COMBO_TERM + 2);
+    up(left);
+    EXPECT_TRUE(has_key(KC_HOME));
+    expect_shift(true);
+    up(comma);
+    up(alt);
+    up(lshift);
+    expect_shift(false);
+}
+
+TEST_F(EmacsMark, MetaSelectionStopsOnAbortAndCanStartAgain) {
+    auto alt = extra(KC_LALT);
+    auto b = extra(KC_B, 7);
+    tap(mark);
+    down(alt);
+    down(b);
+    reports.clear();
+    tap(abort);
+    EXPECT_FALSE(set_mark_active);
+    EXPECT_FALSE(has_key(KC_LEFT));
+    expect_shift(false);
+    expect_no_key_reports(KC_ESC);
+    up(b);
+    reports.clear();
+    tap(b);
+    expect_exact_key_reports(KC_LEFT, MOD_BIT(KC_LCTL));
+    tap(mark);
+    reports.clear();
+    tap(b);
+    expect_exact_key_reports(KC_LEFT, MOD_BIT(KC_LCTL) | MOD_BIT(KC_LSFT));
+    up(alt);
+}
+
+TEST_F(EmacsMark, MetaMacrosRunOnceAndNeverReregisterTheirTrigger) {
+    for (uint16_t alt_code : {KC_LALT, KC_RALT}) {
+        for (uint16_t code : {KC_W, KC_D, KC_BSPC, KC_LBRC}) {
+            SCOPED_TRACE(alt_code);
+            SCOPED_TRACE(code);
+            KeymapKey alt(0, 6, 0, alt_code);
+            KeymapKey trigger(0, 7, 0, code);
+            set_keymap({mark, abort, left, right, lshift, rshift, alt, trigger});
+            down(alt);
+            reports.clear();
+            down(trigger, 1200);
+            uint8_t output = code == KC_W ? KC_C : code == KC_LBRC ? KC_RIGHT : KC_X;
+            unsigned output_reports = 0;
+            for (const auto& report : reports) {
+                output_reports += std::count(std::begin(report.keys), std::end(report.keys), output);
+            }
+            EXPECT_EQ(output_reports, 1u);
+            up(alt, 600);
+            up(trigger);
+            expect_no_key_reports(code);
+            EXPECT_EQ(last_report.mods, 0);
+            if (set_mark_active) {
+                tap(abort);
+            }
+        }
+    }
+}
+
+TEST_F(EmacsMark, MetaMacrosDoNotActivateWhenAltIsPressedAfterTheLetter) {
+    for (uint16_t code : {KC_W, KC_D, KC_BSPC, KC_LBRC}) {
+        SCOPED_TRACE(code);
+        KeymapKey alt(0, 6, 0, KC_LALT);
+        KeymapKey trigger(0, 7, 0, code);
+        set_keymap({mark, abort, left, right, lshift, rshift, alt, trigger});
+        down(trigger);
+        reports.clear();
+        down(alt, 600);
+        expect_no_key_reports(KC_C);
+        expect_no_key_reports(KC_X);
+        expect_no_key_reports(KC_RIGHT);
+        EXPECT_FALSE(set_mark_active);
+        up(trigger);
+        up(alt);
+    }
+}
+
+TEST_F(EmacsMark, MetaAdditionsRespectControlGuiAndDisabledOverrides) {
+    for (uint16_t code : std::initializer_list<uint16_t>{KC_W, KC_D, KC_BSPC, KC_LBRC, S(KC_COMM), S(KC_DOT)}) {
+        for (uint8_t modifier : std::initializer_list<uint8_t>{MOD_LCTL, MOD_RCTL, MOD_LGUI, MOD_RGUI}) {
+            SCOPED_TRACE(code);
+            SCOPED_TRACE(modifier);
+            KeymapKey alt(0, 6, 0, KC_LALT);
+            KeymapKey trigger(0, 7, 0, code);
+            set_keymap({mark, abort, left, right, lshift, rshift, alt, trigger});
+            set_mods(modifier);
+            down(alt);
+            reports.clear();
+            tap(trigger);
+            expect_key_reports(QK_MODS_GET_BASIC_KEYCODE(code), modifier | MOD_BIT(KC_LALT));
+            EXPECT_FALSE(set_mark_active);
+            up(alt);
+            clear_mods();
+            send_keyboard_report();
+        }
+        KeymapKey alt(0, 6, 0, KC_LALT);
+        KeymapKey trigger(0, 7, 0, code);
+        set_keymap({mark, abort, left, right, lshift, rshift, alt, trigger});
+        key_override_off();
+        down(alt);
+        reports.clear();
+        tap(trigger);
+        expect_key_reports(QK_MODS_GET_BASIC_KEYCODE(code), MOD_BIT(KC_LALT));
+        EXPECT_FALSE(set_mark_active);
+        up(alt);
+        key_override_on();
+    }
+}
+
+TEST_F(EmacsMark, MetaWordCutReleasesPreviousOverrideAndKeepsHeldMouseButton) {
+    auto alt = extra(KC_LALT);
+    auto f = extra(KC_F, 7);
+    auto d = extra(KC_D, 8);
+    auto j = extra(KC_J, 6, 1);
+    auto k = extra(KC_K, 7, 1);
+    down(j);
+    down(k, COMBO_TERM + 2);
+    ASSERT_FALSE(mouse_reports.empty());
+    ASSERT_EQ(mouse_reports.back().buttons, 1);
+    tap(mark);
+    down(alt);
+    down(f);
+    reports.clear();
+    tap(d);
+    expect_exact_key_reports(KC_RIGHT, MOD_BIT(KC_LCTL) | MOD_BIT(KC_LSFT));
+    expect_exact_key_reports(KC_X, MOD_BIT(KC_LCTL));
+    EXPECT_FALSE(set_mark_active);
+    EXPECT_EQ(mouse_reports.back().buttons, 1);
+    up(f);
+    up(alt);
+    up(j);
+    up(k);
+    EXPECT_EQ(mouse_reports.back().buttons, 0);
+}
+
+TEST_F(EmacsMark, MetaMacrosWorkOnOneShotLayers) {
+    auto alt = extra(KC_LALT);
+    auto oneshot = extra(OSL(4), 7);
+    overlay(4, {KeymapKey(4, 2, 0, KC_W)});
+    tap(mark);
+    tap(oneshot);
+    down(alt);
+    reports.clear();
+    tap(left);
+    expect_exact_key_reports(KC_C, MOD_BIT(KC_LCTL));
+    expect_no_key_reports(KC_W);
+    EXPECT_FALSE(set_mark_active);
+    EXPECT_FALSE(is_oneshot_layer_active());
+    up(alt);
+}
+
+TEST_F(EmacsMark, MetaCustomMacroKeycodesUseTheSameModifierSafePath) {
+    for (uint16_t code : {copy_region, cut_word, cut_word_backward, mark_word}) {
+        SCOPED_TRACE(code);
+        KeymapKey macro(0, 6, 0, code);
+        set_keymap({mark, abort, left, right, lshift, rshift, macro});
+        tap(mark);
+        set_mods(MOD_MASK_CTRL | MOD_MASK_SHIFT | MOD_MASK_ALT | MOD_MASK_GUI);
+        reports.clear();
+        tap(macro);
+        if (code == copy_region) {
+            expect_exact_key_reports(KC_C, MOD_BIT(KC_LCTL));
+        } else {
+            expect_exact_key_reports(code == cut_word_backward ? KC_LEFT : KC_RIGHT, MOD_BIT(KC_LCTL) | MOD_BIT(KC_LSFT));
+            if (code != mark_word) {
+                expect_exact_key_reports(KC_X, MOD_BIT(KC_LCTL));
+            }
+        }
+        EXPECT_EQ(set_mark_active, code == mark_word);
+        EXPECT_EQ(get_mods(), MOD_MASK_CTRL | MOD_MASK_SHIFT | MOD_MASK_ALT | MOD_MASK_GUI);
+        clear_mods();
+        send_keyboard_report();
+        if (set_mark_active) {
+            tap(abort);
+        }
+    }
+}
+
+TEST_F(EmacsMark, MetaPunctuationBindingsAreReachableOnProductionSymbolsLayer) {
+    set_keymap({});
+    for (uint8_t layer = 0; layer < emacs_keymap_layer_count; ++layer) {
+        for (uint8_t row = 0; row < MATRIX_ROWS; ++row) {
+            for (uint8_t col = 0; col < MATRIX_COLS; ++col) {
+                add_key(KeymapKey(layer, col, row, pgm_read_word(&emacs_keymaps[layer][row][col])));
+            }
+        }
+    }
+    auto production_key = [this](uint16_t code, uint8_t layer) {
+        auto found = std::find_if(keymap.begin(), keymap.end(), [=](const KeymapKey& candidate) {
+            return candidate.layer == layer && candidate.code == code;
+        });
+        if (found == keymap.end()) {
+            ADD_FAILURE() << "Missing production key " << code << " on layer " << +layer;
+            return KeymapKey(0, 0, 0, KC_NO);
+        }
+        return *found;
+    };
+    auto symbols = production_key(LT(1, KC_SPC), 0);
+    auto alt = production_key(KC_LALT, 0);
+    down(symbols, TAPPING_TERM + 1);
+    down(alt);
+    reports.clear();
+    auto less = production_key(S(KC_COMM), 1);
+    down(less);
+    expect_exact_key_reports(KC_HOME, MOD_BIT(KC_LCTL));
+    up(less);
+    auto greater = production_key(S(KC_DOT), 1);
+    reports.clear();
+    down(greater);
+    expect_exact_key_reports(KC_END, MOD_BIT(KC_LCTL));
+    up(greater);
+    reports.clear();
+    tap(production_key(KC_LBRC, 1));
+    expect_exact_key_reports(KC_RIGHT, MOD_BIT(KC_LCTL) | MOD_BIT(KC_LSFT));
+    EXPECT_TRUE(set_mark_active);
+    reports.clear();
+    down(less);
+    expect_exact_key_reports(KC_HOME, MOD_BIT(KC_LCTL) | MOD_BIT(KC_LSFT));
+    up(less);
+    up(alt);
+    up(symbols);
+    // Use the production Abort key for cleanup rather than the fixture's map.
+    layer_on(3);
+    tap(production_key(abort_mark, 3));
+    layer_off(3);
+    EXPECT_FALSE(set_mark_active);
 }

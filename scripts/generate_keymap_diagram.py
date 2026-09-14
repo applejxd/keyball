@@ -658,17 +658,20 @@ def parse_key_overrides(
         "ko_make_with_layers": 4,
         "ko_make_with_layers_and_negmods": 5,
         "ko_make_with_layers_negmods_and_options": 6,
+        "EMACS_NAV_OVERRIDE": 4,
+        "EMACS_MACRO_OVERRIDE": 3,
     }
     rows: list[list[str]] = []
     source = remove_comments(keymap_source)
     for match in re.finditer(
         r"const\s+key_override_t\s+[A-Za-z_][A-Za-z0-9_]*\s*=\s*"
-        r"(ko_make_basic|ko_make_with_layers|ko_make_with_layers_and_negmods|"
-        r"ko_make_with_layers_negmods_and_options)\s*\((.*?)\)\s*;",
+        r"([A-Za-z_][A-Za-z0-9_]*)\s*\((.*?)\)\s*;",
         source,
         flags=re.DOTALL,
     ):
         initializer = match.group(1)
+        if initializer not in initializer_arguments:
+            raise GenerationError(f"Unsupported key override initializer: {initializer}")
         arguments = split_top_level(match.group(2))
         if len(arguments) != initializer_arguments[initializer]:
             raise GenerationError(f"Invalid arguments for {initializer}: {arguments}")
@@ -678,6 +681,14 @@ def parse_key_overrides(
         ]
         trigger_key = display_key(format_key(arguments[1], metadata))
         trigger = modifier_label(trigger_modifiers, trigger_key)
+        if initializer == "EMACS_NAV_OVERRIDE":
+            conditions = {
+                "&set_mark_active": "Mark中",
+                "&mark_inactive": "Mark OFF",
+            }
+            if arguments[3] not in conditions:
+                raise GenerationError(f"Unknown Mark condition: {arguments[3]}")
+            trigger += f"（{conditions[arguments[3]]}）"
         replacement = display_key(format_key(arguments[2], metadata))
         rows.append([trigger, replacement])
     return rows

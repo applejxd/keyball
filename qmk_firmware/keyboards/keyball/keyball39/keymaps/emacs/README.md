@@ -55,13 +55,19 @@ weak左Shiftと分離する。左右Shiftを区別するアプリやリマップ
 ただし補助ShiftもPCには通常のShiftとして届くため、移動キーを保持しながら
 文字入力やクリックをすると、そちらにもShiftが作用し得る。
 
-`Alt+B/F/V` のKey Override出力や `Win+Down` は、従来どおりMarkの対象外。
+`Alt+B/F/V` と `Alt+<`、`Alt+>` もMark中はShift選択になる。
+これらの選択用ShiftはQMKのOverride専用修飾として管理し、
+通常移動のweak右Shiftや物理Shiftと分離する。
+Mark ON/OFFの移動ルールは相互排他的に有効化するため、
+移動キーを保持したままShiftなどを押し直しても選択用Shiftは失われない。
+`Win+Down` など、それ以外のModifier付き移動は対象外。
+`Alt+W` のコピー、`Alt+D/Backspace` の単語切り取りでもMarkを終了する。
 
 ## マクロとAlt変換
 
 `CUT_LINE` は `Shift+End`、10 ms待機、`Ctrl+X` の順で送信する。
 MarkがOFFの `ABORT` は修飾なしのEscを送信する。
-どちらも保持中のCtrl・Alt・GUI・Shiftと補助修飾キーを出力中だけ外し、
+これらと以下のコピー・単語操作マクロは、保持中のCtrl・Alt・GUI・Shiftと補助修飾キーを出力中だけ外し、
 終了後に復元する。待機中のワンショット修飾はマクロが消費し、
 マクロにも次の文字にも付加しない。マウスボタンの保持状態は変更しない。
 有効中・遅延中のKey Overrideはマクロの出力前に解除する。
@@ -70,21 +76,42 @@ MarkがOFFの `ABORT` は修飾なしのEscを送信する。
 `CUT_LINE` は従来どおりMarkを終了せず、長押しリピートもしない。
 Emacsの `kill-line` そのものではなく、行末での改行削除やkill ringへの連結は行わない。
 
-| 入力 | 出力 |
-|---|---|
-| Alt+B | Ctrl+Left |
-| Alt+F | Ctrl+Right |
-| Alt+V | Page Up |
-| Alt+Y | Win+V（Windowsのクリップボード履歴） |
+`M-` はAltを表す。これらはWindows向けの近似操作であり、
+Emacs本体のコマンドやkill ringを実装するものではない。
 
-左右どちらのAltでも使用でき、Shiftを併用すると出力にもShiftが付く。
+| 入力 | Mark OFFの出力・動作 | Mark ONの動作 |
+|---|---|---|
+| M-b / M-f | Ctrl+Left / Right | Ctrl+Shift+Left / Rightで単語選択 |
+| M-v | Page Up | Shift+Page Upでページ単位の選択 |
+| M-y | Win+V（Windowsのクリップボード履歴） | 同じ。Markは維持 |
+| M-w | Ctrl+Cで選択範囲をコピー | コピー後にMarkを終了 |
+| M-d | Ctrl+Shift+Right → Ctrl+Xで単語を切り取り | 同じ。Markを終了 |
+| M-Backspace（Emacs表記M-DEL） | Ctrl+Shift+Left → Ctrl+Xで後方の単語を切り取り | 同じ。Markを終了 |
+| M-< / M-> | Ctrl+Home / Endで文書の先頭・末尾へ移動 | Ctrl+Shift+Home / Endで選択 |
+| M-@ | Ctrl+Shift+Rightで次の単語を選択し、Markを有効にする | 選択を進め、Markを維持 |
+
+単語切り取りでは選択キーの解放から切り取りまで10 ms待機する。
+Ctrl+Delete/Backspaceの単純な削除とは異なり、切り取った内容はクリップボードに入る。
+単語の区切りと移動先は使用アプリに依存し、Emacsの単語境界と完全には一致しない。
+既に画面上で選択している範囲がある場合も、まず上記の選択キーを送信する。
+
+JIS配列の `M-@` はSymbolsレイヤーの `@`（Wの位置）を使用する。
+US配列の `Alt+Shift+2` ではない。
+`M-<` / `M->` はBaseの `Alt+Shift+Comma/Dot` と、
+Symbolsレイヤーの `Alt+<` / `Alt+>` の両方で使用できる。
+BaseのComma/Dotを30 ms以内に重ねて押すと、従来どおりクリックComboが優先される。
+Symbolsの `<` / `>` は別のキーコードなので、このComboには該当しない。
+
+左右どちらのAltでも使用できる。`Alt+B/F/V/Y` は物理Shiftを併用すると出力にもShiftが付く。
+`Alt+<` / `Alt+>` は入力側のShiftを取り除き、Mark中だけ選択用Shiftを付加する。
+コピー・単語切り取り・単語選択マクロはAltを先に押し、文字キーの押下時に1回実行する。
+Shift併用でもマクロの出力は変わらず、解放時や長押しでは再実行しない。
+文字を先に押してからAltを追加しても、これらの編集マクロは発火しない。
 Ctrl・GUIの保持中は変換せず、元のショートカットを送信する。
 Ctrl・GUIを離しただけでは、保持中のキーをAlt変換へ切り替えない。
 変換中にCtrl・GUIを押した場合は変換を終了する。
-Altを先に離した場合も、元の `B/F/V/Y` を再送しない。
+Altを先に離した場合も、元のトリガーキーを再送しない。
 対象レイヤーは従来どおり全レイヤーで、そのレイヤーの実際のキーコードに一致した場合のみ発火する。
-
-`M-w` などのバインディング追加やMarkとAlt移動の連携は、この修正には含めない。
 
 ## 回帰テスト
 
@@ -104,7 +131,9 @@ productionの `keymap.c` と `config.h` を使い、Markに加えて
 Comboの30 ms境界、タイマーの非延長、5ボタンの保持・解放、押下・解放順、
 連続クリック、修飾キー、Layer Tap、`C-x` を検証する。
 マクロの修飾分離と復元、Overrideの解除順・禁止修飾キー、物理・ワンショットCtrlでの
-Mark終了も検証する。これらはUSBレポートの確認であり、
+Mark終了も検証する。追加バインディングではMarkの有無、修飾キーの押し直し、
+通常移動との重ね押し、マクロの1回実行と10 ms間隔、JISのSymbolsレイヤーからの操作も確認する。
+これらはUSBレポートの確認であり、
 Windowsアプリ側のショートカット解釈を保証するものではない。
 テストディレクトリ名は既存の `tests/keyball39_emacs_mark` を維持する。
 RGB・スクロールsetterはスタブで、マウスレポートはQMK Mouse Keys経路を使う。
