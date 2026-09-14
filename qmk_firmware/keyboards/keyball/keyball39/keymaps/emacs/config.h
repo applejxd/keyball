@@ -26,6 +26,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define TAP_CODE_DELAY 5
 
+// Shorten the roll window without making mouse combos tap-only.
+#define COMBO_TERM 30
+#define COMBO_STRICT_TIMER
+
 /* ------- */
 /* 容量節約 */
 /* ------- */

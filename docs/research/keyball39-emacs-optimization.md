@@ -29,9 +29,13 @@ Auto Mouseを廃止した。最適化済み構成との比較ビルドでは
 さらに **1,112 bytes** を回収できた。これは自動レイヤー切り替えを廃止する
 機能変更であり、上記の動作を変えない最適化とは区別する。
 
-さらにMarkのShift管理を安定化した結果、現在は **26,752 / 28,672 bytes**、
+さらにMarkのShift管理を安定化した結果、**26,752 / 28,672 bytes**、
 空き **1,920 bytes (6.70%)** となった。安定化による増加はFlash **250 bytes**、
 静的RAM **9 bytes** である。
+
+その後、優先度5のCombo対策として受付時間を30 msへ短縮し、strict timerを
+有効化した。現在は **26,764 / 28,672 bytes**、空き **1,908 bytes (6.65%)**。
+Combo対策による増加はFlash **12 bytes**、静的RAMは不変である。
 
 ## 適用した最適化
 
@@ -115,7 +119,8 @@ Pointing Device、Combo、Key Override、OLED、RGB、split、One-shot、Tapping
 右トラックボール1個の構成を前提とし、EEPROMの初期化や共有処理の変更は行っていない。
 保存形式に関する注意点と実機確認項目は
 [UX改善案](../change/keyball39-emacs-ux-improvements.md#eeprom互換性)に記載した。
-実機への書き込みと操作確認は未実施。
+この比較ビルド時点では実機への書き込みと操作確認は未実施。
+その後のCombo対策を含む実機確認結果は、下記の再計測節を参照。
 
 ## Mark安定化後の再計測
 
@@ -138,7 +143,8 @@ One-shot・Tap-Hold・レイヤー配列は維持されている。
 変更前の物理Shift解除・ナビゲーション重ね押し・ABORT保持の3回帰ケースが失敗することを
 確認した後、QMK入力処理を使う27件をshuffle seed 914・915・916で実行し、
 計81ケースが成功した。テストはproductionの `keymap.c` を直接コンパイルする。
-ハードウェア周辺はスタブであり、実機の選択動作と実行時スタック使用量は未検証。
+ハードウェア周辺はスタブであり、この時点では実機の選択動作は未検証。
+その後の基本動作確認は下記に記録したが、実行時スタック使用量は未測定。
 
 ```text
 The firmware size is fine - 26752/28672 (93%, 1920 bytes free)
@@ -148,6 +154,48 @@ The firmware size is fine - 26752/28672 (93%, 1920 bytes free)
 回帰テストの再現には `scripts/run_keymap_tests.py --qmk-home <QMKのcheckout先>` を使う。
 専用テストとfirmwareビルドを同じQMK checkoutで動かす場合、
 `qmk clean` とテストを並行実行しない。
+
+## Combo対策後の再計測
+
+Mark安定化済み構成と、`emacs/config.h` に `COMBO_TERM 30`、
+`COMBO_STRICT_TIMER` を追加した構成を比較した。
+QMK 0.22.14・固定コンテナ・AVR GCC 8.3.0を使用した。
+比較元は新規checkoutでビルドし、変更後は `qmk clean` 後にビルドした。
+
+| 構成 | Flash使用量 | Flash空き | 静的RAM使用量 |
+|---|---:|---:|---:|
+| Mark安定化後 | 26,752 bytes | 1,920 bytes | 1,515 bytes |
+| Combo対策後 | 26,764 bytes | 1,908 bytes | 1,515 bytes |
+
+変更後は `.text=26,470`、`.data=294`、`.bss=1,221` bytes。
+Flashは `.text + .data`、静的RAMは `.data + .bss` で計測した。
+キー配列とCombo定義は変更していない。
+
+Windowsのbind mount上でGitの作業ツリー走査に時間がかかったため、
+両ビルドにQMK標準の `SKIP_GIT=yes` を指定し、バージョンヘッダー生成時の
+Git走査だけを省略した。バージョンヘッダーのGit情報は `NA` となる。
+QMKのソースバージョンはcheckoutで固定している。
+
+```console
+qmk compile -j 4 -kb keyball/keyball39 -km emacs -e SKIP_GIT=yes
+```
+
+```text
+baseline:
+The firmware size is fine - 26752/28672 (93%, 1920 bytes free)
+combo:
+The firmware size is fine - 26764/28672 (93%, 1908 bytes free)
+```
+
+QMK回帰テストは75件（既存Mark 27件＋Combo 48件）が成功し、
+shuffle seed 914・915・916でも計225ケースが成功した。
+変更前にはCombo境界・タイマー関連8件の失敗を確認した。
+`qmk lint -kb keyball/keyball39` は両構成とも既存の `via.json` 指摘だけで失敗し、
+出力は一致した。`mise run keymap:check` は成功した。
+2026-09-14、QMK Toolboxでの書き込み・確認手順の案内後、
+ユーザーから基本動作に問題なしとの報告を受けた。
+個別の操作ログや誤発火率の数値、長期使用の結果は記録していない。
+詳細は[UX改善案の実機確認結果](../change/keyball39-emacs-ux-improvements.md#実機確認結果)を参照。
 
 ## 追加で容量が必要になった場合
 
