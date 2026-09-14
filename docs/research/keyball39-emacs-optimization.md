@@ -1,6 +1,7 @@
 # Keyball39 emacs キーマップの容量・最適化調査
 
 調査日: 2026-09-13
+更新日: 2026-09-14
 
 対象:
 
@@ -27,6 +28,10 @@ Auto Mouseを廃止した。最適化済み構成との比較ビルドでは
 **26,502 / 28,672 bytes**、空き **2,170 bytes (7.57%)** となり、
 さらに **1,112 bytes** を回収できた。これは自動レイヤー切り替えを廃止する
 機能変更であり、上記の動作を変えない最適化とは区別する。
+
+さらにMarkのShift管理を安定化した結果、現在は **26,752 / 28,672 bytes**、
+空き **1,920 bytes (6.70%)** となった。安定化による増加はFlash **250 bytes**、
+静的RAM **9 bytes** である。
 
 ## 適用した最適化
 
@@ -112,6 +117,38 @@ Pointing Device、Combo、Key Override、OLED、RGB、split、One-shot、Tapping
 [UX改善案](../change/keyball39-emacs-ux-improvements.md#eeprom互換性)に記載した。
 実機への書き込みと操作確認は未実施。
 
+## Mark安定化後の再計測
+
+比較元はAuto Mouse廃止済みの `16d9ea881f3844ffa866702e5e4057a649be6d3f`。
+同じQMK 0.22.14・固定コンテナ・AVR GCC 8.3.0を使用し、
+各firmwareビルド前に `qmk clean` を実行した。
+firmwareソースの差分は `keymap.c` のMark関連処理のみである。
+
+| 構成 | Flash使用量 | Flash空き | 静的RAM使用量 |
+|---|---:|---:|---:|
+| Auto Mouse廃止直後 | 26,502 bytes | 2,170 bytes | 1,506 bytes |
+| Mark安定化後 | 26,752 bytes | 1,920 bytes | 1,515 bytes |
+
+Mark安定化後は `.text=26,458`、`.data=294`、`.bss=1,221` bytes。
+HEXチェックサム・実データ量とELFのFlash使用量の一致も確認した。
+実効マクロとコンパイルコマンドは比較元と同じで、
+Auto Mouseは引き続き無効、既存のPointing Device・Combo・Key Override・
+One-shot・Tap-Hold・レイヤー配列は維持されている。
+
+変更前の物理Shift解除・ナビゲーション重ね押し・ABORT保持の3回帰ケースが失敗することを
+確認した後、QMK入力処理を使う27件をshuffle seed 914・915・916で実行し、
+計81ケースが成功した。テストはproductionの `keymap.c` を直接コンパイルする。
+ハードウェア周辺はスタブであり、実機の選択動作と実行時スタック使用量は未検証。
+
+```text
+The firmware size is fine - 26752/28672 (93%, 1920 bytes free)
+```
+
+`qmk lint -kb keyball/keyball39` は、従来と同じ `via.json` 指摘だけで終了コード1。
+回帰テストの再現には `scripts/run_keymap_tests.py --qmk-home <QMKのcheckout先>` を使う。
+専用テストとfirmwareビルドを同じQMK checkoutで動かす場合、
+`qmk clean` とテストを並行実行しない。
+
 ## 追加で容量が必要になった場合
 
 優先順位は次のとおり。
@@ -123,18 +160,16 @@ Pointing Device、Combo、Key Override、OLED、RGB、split、One-shot、Tapping
 4. コンボと Key Override は削減効果が大きいが、現在のマウスボタン入力と
    Emacs 操作を直接失うため、単純な無効化は推奨しない。
 
-## コード上の注意点
+## Mark実装上の注意点
 
-`set_mark_active` 中のカーソル移動は `register_code(KC_LSFT)` と
-`unregister_code(KC_LSFT)` を使用している。この方式には次の注意点がある。
+当初の容量最適化では、物理Shiftを直接登録・解除するMark処理を変更しなかった。
+現在は別の安定化変更で、押下位置の追跡とMark専用のweak右Shiftへ移行している。
+既存のShift付き記号・マクロはweak左Shiftを使用するため、
+両者の解除が干渉しない。物理左右Shiftは従来どおり維持する。
 
-- 実際に Shift を押したままカーソルキーを離すと、物理 Shift の状態まで
-  解除する可能性がある。
-- 複数のカーソルキーを重ねて押すと、先に離したキーが Shift を解除する。
-
-必要なら、弱い Mod (`add_weak_mods` / `del_weak_mods`) と押下数の管理へ
-変更する。この修正は信頼性向上になる一方、コード量が増える可能性がある
-ため、今回の容量最適化には含めていない。
+将来weak右Shiftを使うキーやマクロを追加する際は所有の競合を再検討する。
+左右Shiftを区別するアプリやリマップ設定での差も、実機確認の対象となる。
+詳細は[UX改善案](../change/keyball39-emacs-ux-improvements.md)を参照。
 
 ## 検証方法
 

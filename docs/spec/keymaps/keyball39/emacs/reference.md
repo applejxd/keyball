@@ -75,7 +75,7 @@
 |---|---|---|
 | CUT_LINE | Cut line | カーソル位置から行末まで選択して切り取る |
 | SET_MARK | Set mark | Mark選択モードの有効・無効を切り替える |
-| ABORT | Abort | Mark中は選択を解除し、それ以外ではEscを送信する |
+| ABORT | Abort | Mark中は選択モードだけを解除し、それ以外ではEscを送信する |
 
 ## RGBレイヤー色
 
@@ -129,10 +129,16 @@
 
 ### Mark
 
-1. Set markで選択モードを切り替える
-2. 選択モード中にカーソル移動キーを押すとShift選択になる
-3. C、Ctrl+C、Ctrl+X、Ctrl+V、Deleteの押下後は選択モードを解除する
-4. Abortは選択モードを解除し、もう一度押すとEscとして動作する
+1. Set markでキーボード内部の選択モードを切り替える（Emacs固有のコマンドは送信しない）
+2. 選択モード中は矢印、Home、End、Page Up、Page Downに補助Shiftを加え、対応するアプリで範囲選択する
+3. 移動キーを離すと補助Shiftを解除するが、選択モードは維持されるため連打でも選択を続けられる
+4. 移動キーを重ねて押した場合は、最後の対象キーを離すまで補助Shiftを維持する
+5. 物理Shiftとは独立に管理し、Markを終了しても自分で押しているShiftは解除しない
+6. Markの補助にはweak右Shiftを使い、既存のShift付き記号・マクロのweak左Shiftと分離する
+7. C、Ctrl+C、Ctrl+X、Ctrl+V、Deleteの押下後は選択モードを解除する
+8. Abortは選択モードとMarkの補助Shiftだけを解除し、もう一度押すとEscを送信する（画面上の選択範囲を直接消す操作ではない）
+9. MarkがONでも移動キーを押していなければ文字やクリックに補助Shiftは付かないが、移動キーとの同時操作にはShiftが作用し得る
+10. Win+DownなどModifier付き移動キーや、Alt+B・Alt+F・Alt+VのKey Override出力はMarkの対象に追加しない
 
 ### C-x
 

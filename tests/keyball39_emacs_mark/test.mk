@@ -1,0 +1,7 @@
+COMBO_ENABLE = yes
+KEY_OVERRIDE_ENABLE = yes
+MOUSEKEY_ENABLE = yes
+
+KEYBALL_DIR ?= keyboards/keyball
+OPT_DEFS += -I$(KEYBALL_DIR)
+INTROSPECTION_KEYMAP_C = test_keymap.c

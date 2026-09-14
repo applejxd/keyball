@@ -1,8 +1,9 @@
 # Keyball39 emacs キーマップの UX 改善案
 
 作成日: 2026-09-13
+更新日: 2026-09-14
 
-ステータス: 優先度1の案Aを実装済み（実機確認待ち）。優先度2以降は検討中
+ステータス: 優先度1の案Aと優先度2を実装済み（実機確認待ち）。優先度3以降は検討中
 
 対象:
 
@@ -20,9 +21,9 @@
 
 ## 現状
 
-Auto Mouse廃止後のファームウェアは **26,502 / 28,672 bytes** で、
-空きは **2,170 bytes**。廃止前の最適化済み構成 **27,614 bytes** から
-**1,112 bytes** 削減できた。比較ビルドの詳細は
+Mark安定化後のファームウェアは **26,752 / 28,672 bytes** で、
+空きは **1,920 bytes**。Auto Mouse廃止直後の **26,502 bytes** から
+安定化のために **250 bytes** 増加した。比較ビルドの詳細は
 [容量・最適化調査](../research/keyball39-emacs-optimization.md)を参照。
 
 現在のレイヤー構成は次のとおり。
@@ -128,30 +129,75 @@ enum keymap_layer {
 Combo無効化では単独で1,824 bytes削減できたが、Mouseレイヤー追加後の正味容量は
 別途ビルドして計測する。
 
-## 優先度2: Mark操作の安定化
+## 優先度2: Mark操作の安定化（実装済み）
 
-現在はマーク中のカーソル移動で物理Shiftを直接登録・解除している。
+変更前はマーク中のカーソル移動で物理左Shiftを直接登録・解除していた。
 
 ```c
 register_code(KC_LSFT);
 unregister_code(KC_LSFT);
 ```
 
-この方式には次の問題がある。
+この方式には次の問題があった。
 
-- 物理Shiftを押したままカーソルキーを離すと、物理Shiftまで解除する可能性がある
+- 物理左Shiftを押したままカーソルキーを離すと、物理左Shiftまで解除する
 - 複数のカーソルキーを重ねると、先に離したキーがShiftを解除する
-- 内部のマーク状態と実際のShift状態がずれても確認しにくい
+- カーソルキーを保持したままABORT等でMarkを終了すると、
+  後のキー解放がMark中の処理を通らずShiftが残る
 
-弱いModifierを使用し、押下中のナビゲーションキー数を管理する方式へ変更する。
+### 維持する操作
 
-- `add_weak_mods(MOD_BIT(KC_LSFT))`
-- `del_weak_mods(MOD_BIT(KC_LSFT))`
-- 押下数が0から1になったときだけ追加
-- 押下数が1から0になったときだけ解除
-- `ABORT` やマーク終了時にも状態を整合させる
+`SET_MARK` はキーボード内部の選択モードを切り替え、Emacs固有のコマンドは送らない。
+モード中に矢印、Home、End、Page Up、Page Downを押すと補助Shiftを加えるため、
+通常のShift選択に対応するエディタや入力欄でも範囲選択できる。
 
-キー配置や操作方法は変更しない。
+移動キーを離すと補助Shiftを解除するが、選択モードは維持する。
+連打でも選択を続けられ、複数の対象キーを重ねた場合は最後のキーを離すまで
+補助Shiftを維持する。Mark開始前から保持していたキーは、新規の選択操作としては数えない。
+
+終了条件は従来どおり `SET_MARK` の再押下、Mark中の `ABORT`、
+`KC_C`、`C(KC_C)`、`C(KC_X)`、`C(KC_V)`、`KC_DEL` の押下。
+Mark中の `ABORT` はEscを送らず、選択モードだけを終了する。
+画面上の選択範囲を直接消す操作ではない。
+`CUT_LINE` はShift+End、10 ms待機、Ctrl+Xという順序と、Markを終了しない仕様を維持する。
+
+### 実装
+
+- 対象ナビゲーションキーの押下位置を行ごとのビット集合で追跡し、押下数も管理する。
+  レイヤー変更後やワンショットの合成解放、古いMarkセッションからの解放でも二重に減算しない。
+- Markには `add_weak_mods(MOD_BIT(KC_RSFT))` によるweak右Shiftを使う。
+  物理左右Shiftには触れず、既存の `S(kc)` やマクロのweak左Shiftと所有を分離する。
+- QMK 0.22.14はキー押下時とComboのバッファ処理後にweak modifierを消すため、
+  `pre_process_record_user`、`process_record_user`、`housekeeping_task_user` で
+  必要な補助Shiftを復元する。押下数0→1で一度だけ追加する方式にはしない。
+- 終了処理を `end_mark()` にまとめ、押下状態とMarkの補助Shiftを解除し、
+  必要なキーボードレポートを送る。コピー等の操作にMark由来のShiftを残さない。
+- `CUT_LINE` 実行中だけMarkの補助Shiftを外し、Ctrl+Xへの混入を防いでから復元する。
+  物理Shiftやマウスボタンの保持状態は変更しない。
+
+キー配置、Combo、Key Override、スクロール、ワンショットの定義は変更していない。
+`Alt+B/F/V` のKey Override出力や `Win+Down` 等のModifier付き移動を、
+新たにMark対象へ広げることもしていない。
+
+補助ShiftもPCには通常のShiftとして届くため、移動キーを保持しながら文字や
+クリックを操作すると、そちらにもShiftが作用し得る。
+左右Shiftを区別するアプリやリマップ設定では、補助が左から右へ変わる差を確認する。
+今後 `RSFT(kc)` 等のweak右Shiftを使うキーやマクロを追加する場合は、所有の競合を再検討する。
+
+### 検証
+
+`tests/keyball39_emacs_mark` はproductionの `keymap.c` 全体を直接コンパイルし、
+QMK 0.22.14の `action_exec`、Combo、Tap-Hold、Key Override、ワンショット、
+マクロから送られる実レポートを検証する。
+変更前の物理Shift・重ね押し・ABORT保持の3ケースはすべて失敗し、
+修正後は同じケースを含む27件が成功した。
+shuffle seed 914・915・916の3回、計81ケースが成功し、
+`CUT_LINE` の10 ms間隔も確認した。
+全production配列を走査し、既存のキーがMark用weak右Shiftと競合しないことも検査する。
+
+ハードウェアのRGB・スクロールsetterはスタブで、マウスボタンはテスト用の
+QMK Mouse Keys経路を使用する。実機のPointing Device経路やアプリ上の選択動作は別途確認する。
+再現コマンドはキーマップREADMEの回帰テスト手順を参照。
 
 ## 優先度3: 状態の可視化
 
@@ -299,7 +345,7 @@ READMEは生成コマンドと、自動生成・手動管理の境界だけを�
 
 1. 自動NumFnを使用しない方針を確認する（完了）
 2. Auto Mouseを無効化する（実装済み、実機確認待ち）
-3. Mark処理をweak modifier化する
+3. Mark処理をweak modifier化する（実装・QMK回帰テスト済み、実機確認待ち）
 4. OLEDへMarkと `C-x` の状態を表示する
 5. `ONESHOT_TIMEOUT` とABORT処理を追加する
 6. 実際に誤判定するLayer Tapだけ調整する

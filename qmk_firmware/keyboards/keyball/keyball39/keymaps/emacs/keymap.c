@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "quantum.h"
 
+#include <string.h>
+
 enum custom_keycodes {
     CUT_LINE = KEYBALL_SAFE_RANGE,
     SET_MARK,   
@@ -31,24 +33,84 @@ enum custom_keycodes {
 /* ------ */
 
 bool set_mark_active = false;  // マーク状態を保持
+static matrix_row_t mark_navigation_keys[MATRIX_ROWS];
+static uint8_t mark_navigation_count;
+
+// S(kc) and CUT_LINE use weak left Shift; reserve weak right Shift for Mark.
+#define MARK_SHIFT MOD_BIT(KC_RSFT)
+
+static void restore_mark_shift(void) {
+    if (mark_navigation_count) {
+        add_weak_mods(MARK_SHIFT);
+    }
+}
+
+static void end_mark(void) {
+    bool had_navigation = mark_navigation_count != 0;
+    set_mark_active = false;
+    memset(mark_navigation_keys, 0, sizeof(mark_navigation_keys));
+    mark_navigation_count = 0;
+    if (had_navigation) {
+        del_weak_mods(MARK_SHIFT);
+        send_keyboard_report();
+    }
+}
+
+bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // action_exec clears weak mods before Combo and tap-hold processing.
+    restore_mark_shift();
+    return true;
+}
+
+void housekeeping_task_user(void) {
+    // Combo also clears weak mods after dispatching its buffered records.
+    restore_mark_shift();
+}
+
 // see https://docs.qmk.fm/feature_macros#using-macros-in-c-keymaps
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // Track positions, not keycodes: late and synthetic releases are idempotent.
+    if (IS_KEYEVENT(record->event) && !record->event.pressed) {
+        matrix_row_t key = (matrix_row_t)1 << record->event.key.col;
+        if (mark_navigation_keys[record->event.key.row] & key) {
+            mark_navigation_keys[record->event.key.row] &= ~key;
+            if (--mark_navigation_count == 0) {
+                del_weak_mods(MARK_SHIFT);
+            }
+        }
+    }
+    restore_mark_shift();
+
     switch (keycode) {
         case CUT_LINE:
             if (record->event.pressed) {
+                if (mark_navigation_count) {
+                    del_weak_mods(MARK_SHIFT);
+                    send_keyboard_report();
+                }
                 tap_code16(S(KC_END));
                 wait_ms(10);
                 tap_code16(C(KC_X));
+                if (mark_navigation_count) {
+                    restore_mark_shift();
+                    send_keyboard_report();
+                }
             }
             break;
         case SET_MARK:
-            if (record->event.pressed) set_mark_active = !set_mark_active;
+            if (record->event.pressed) {
+                if (set_mark_active) {
+                    end_mark();
+                } else {
+                    set_mark_active = true;
+                }
+            }
             break;
         case ABORT:
             if (record->event.pressed) {
                 if (set_mark_active) {
                     // マーク解除時は ESC を送信しない
-                    set_mark_active = false;
+                    end_mark();
                 } else {
                     tap_code(KC_ESC);
                 }
@@ -56,17 +118,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
         case KC_LEFT: case KC_RIGHT: case KC_UP: case KC_DOWN: 
         case KC_HOME: case KC_END: case KC_PGDN: case KC_PGUP:
-            if (set_mark_active) {
-                if (record->event.pressed) {
-                    register_code(KC_LSFT);
-                } else {
-                    unregister_code(KC_LSFT);
+            if (set_mark_active && record->event.pressed && IS_KEYEVENT(record->event)) {
+                matrix_row_t key = (matrix_row_t)1 << record->event.key.col;
+                if (!(mark_navigation_keys[record->event.key.row] & key)) {
+                    mark_navigation_keys[record->event.key.row] |= key;
+                    ++mark_navigation_count;
                 }
+                restore_mark_shift();
             }
             break;
         case KC_C: case C(KC_C): case C(KC_X): case C(KC_V): case KC_DEL:
             // 選択範囲を用いたアクションの後は選択解除
-            if (record->event.pressed) { set_mark_active = false; }
+            if (record->event.pressed) { end_mark(); }
             break;
         // case KC_W:
         //     if (record->event.pressed) {

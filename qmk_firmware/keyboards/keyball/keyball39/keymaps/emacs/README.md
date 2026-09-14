@@ -11,6 +11,42 @@ Emacsレイヤーの横スクロールは従来どおり使用できる。
 起動直後のOLEDの方向表示は保存済み設定によって変わる場合がある。
 2ボール構成や設定保存キーの追加時は、[EEPROM互換性の注意点](../../../../../../docs/change/keyball39-emacs-ux-improvements.md#eeprom互換性)を確認する。
 
+## Mark選択モード
+
+`SET_MARK` はキーボード内部の選択モードを切り替える。
+Emacs固有のコマンドではなく、矢印・Home・End・Page Up・Page Downに
+補助Shiftを加えるため、通常のShift選択に対応するエディタや入力欄でも使える。
+移動キーを離してもモードはONのままなので、連打でも選択を続けられる。
+
+`SET_MARK` の再押下、Mark中の `ABORT`、既存のコピー・切り取り・貼り付け・
+削除操作でモードを終了する。Mark中の `ABORT` はEscを送信せず、
+画面上の選択範囲を直接消す操作ではない。
+物理ShiftとMarkの補助Shiftは別に管理する。
+Markの補助にはweak右Shiftを使用し、既存のShift付き記号やマクロが使う
+weak左Shiftと分離する。左右Shiftを区別するアプリやリマップ設定では、
+従来の左Shiftによる選択との差を実機で確認する。
+将来 `RSFT(kc)` など右Shiftを補助的に使うキーを追加する場合は、競合を再検討する。
+ただし補助ShiftもPCには通常のShiftとして届くため、移動キーを保持しながら
+文字入力やクリックをすると、そちらにもShiftが作用し得る。
+
+`Alt+B/F/V` のKey Override出力や `Win+Down` は、従来どおりMarkの対象外。
+
+### 回帰テスト
+
+QMK 0.22.14のcheckoutとGoogleTest等のサブモジュール、QMKのビルド用ツールが必要。
+QMKビルド環境内でリポジトリルートから実行する。
+
+```console
+mise run keymap:test -- --qmk-home <QMKのcheckout先>
+```
+
+`QMK_HOME` を設定済みなら引数は不要。miseを使用しない環境では
+`python3 scripts/run_keymap_tests.py --qmk-home <QMKのcheckout先>` でも実行できる。
+テスト用ファイルはQMK側へ一時コピーし、終了時に削除する。
+既存の同名テストディレクトリは上書きしない。
+CIでもKeyball39 emacsのビルド前に同じテストを実行する。
+実機の選択動作、クリック・スクロールとの併用は別途確認する。
+
 ## レイヤー構造
 
 ```txt

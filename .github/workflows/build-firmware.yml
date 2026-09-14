@@ -38,6 +38,10 @@ jobs:
     - name: Install a link to own source
       run: ln -s $(pwd)/qmk_firmware/keyboards/keyball __qmk__/keyboards/keyball
 
+    - name: Test Keyball39 emacs
+      if: inputs.keyboard == 'keyball39' && inputs.keymap == 'emacs'
+      run: python3 scripts/run_keymap_tests.py --qmk-home __qmk__
+
     - name: Compile and link
       run: qmk compile -j 4 -kb keyball/${{ inputs.keyboard }} -km ${{ inputs.keymap }}
 

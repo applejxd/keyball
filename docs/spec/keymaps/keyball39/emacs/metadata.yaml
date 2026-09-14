@@ -31,7 +31,7 @@ custom_keys:
     description: Mark選択モードの有効・無効を切り替える
   ABORT:
     label: Abort
-    description: Mark中は選択を解除し、それ以外ではEscを送信する
+    description: Mark中は選択モードだけを解除し、それ以外ではEscを送信する
 
 external_shortcuts:
   - keys: Win+Shift+F23
@@ -39,10 +39,16 @@ external_shortcuts:
 
 workflows:
   Mark:
-    - Set markで選択モードを切り替える
-    - 選択モード中にカーソル移動キーを押すとShift選択になる
+    - Set markでキーボード内部の選択モードを切り替える（Emacs固有のコマンドは送信しない）
+    - 選択モード中は矢印、Home、End、Page Up、Page Downに補助Shiftを加え、対応するアプリで範囲選択する
+    - 移動キーを離すと補助Shiftを解除するが、選択モードは維持されるため連打でも選択を続けられる
+    - 移動キーを重ねて押した場合は、最後の対象キーを離すまで補助Shiftを維持する
+    - 物理Shiftとは独立に管理し、Markを終了しても自分で押しているShiftは解除しない
+    - Markの補助にはweak右Shiftを使い、既存のShift付き記号・マクロのweak左Shiftと分離する
     - C、Ctrl+C、Ctrl+X、Ctrl+V、Deleteの押下後は選択モードを解除する
-    - Abortは選択モードを解除し、もう一度押すとEscとして動作する
+    - Abortは選択モードとMarkの補助Shiftだけを解除し、もう一度押すとEscを送信する（画面上の選択範囲を直接消す操作ではない）
+    - MarkがONでも移動キーを押していなければ文字やクリックに補助Shiftは付かないが、移動キーとの同時操作にはShiftが作用し得る
+    - Win+DownなどModifier付き移動キーや、Alt+B・Alt+F・Alt+VのKey Override出力はMarkの対象に追加しない
   C-x:
     - EmacsレイヤーのC-xキーでワンショットのC-xレイヤーへ移動する
     - 次の1キーを処理するとC-xレイヤーを解除し、元のアクティブレイヤーへ戻る

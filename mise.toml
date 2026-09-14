@@ -8,3 +8,7 @@ run = "uv run --locked scripts/generate_keymap_diagram.py"
 [tasks."keymap:check"]
 description = "Check that generated keymap diagrams are current"
 run = "uv run --locked scripts/generate_keymap_diagram.py --check"
+
+[tasks."keymap:test"]
+description = "Run Keyball39 emacs tests in QMK 0.22.14 (requires QMK_HOME)"
+run = "uv run scripts/run_keymap_tests.py"
