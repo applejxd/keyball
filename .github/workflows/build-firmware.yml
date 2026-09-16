@@ -42,11 +42,17 @@ jobs:
       if: inputs.keyboard == 'keyball39' && inputs.keymap == 'emacs'
       run: python3 scripts/run_keymap_tests.py --qmk-home __qmk__
 
+    - name: Test firmware build helper
+      run: python3 -B -m unittest discover -s tests -p test_build_firmware.py
+
     - name: Compile and link
-      run: qmk compile -j 4 -kb keyball/${{ inputs.keyboard }} -km ${{ inputs.keymap }}
+      env:
+        KEYBOARD: ${{ inputs.keyboard }}
+        KEYMAP: ${{ inputs.keymap }}
+      run: python3 scripts/build_firmware.py --qmk-home __qmk__ --keyboard "$KEYBOARD" --keymap "$KEYMAP"
 
     - name: Archive built firmware
       uses: actions/upload-artifact@v7
       with:
         name: ${{ inputs.keyboard }}-${{ inputs.keymap }}-firmware
-        path: __qmk__/*.hex
+        path: build/*.hex

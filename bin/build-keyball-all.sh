@@ -1,9 +1,12 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 set -u
 
 id=$(date "+%Y%m%d_%H%M%S")
-logdir=tmp/build_log/${id}
+repo_root=$(cd "$(dirname "$0")/.." && pwd)
+qmk_home=${QMK_HOME:-$PWD}
+build_dir="${repo_root}/build"
+logdir="${build_dir}/build_log/${id}"
 
 keyboards=()
 keyboards+=(keyball39)
@@ -17,7 +20,7 @@ keymaps+=(test)
 keymaps+=(default)
 keymaps+=(via)
 
-mkdir -p ${logdir}
+mkdir -p "${logdir}"
 
 for kb in "${keyboards[@]}" ; do
   tmpmaps=(${keymaps[@]})
@@ -27,10 +30,10 @@ for kb in "${keyboards[@]}" ; do
     tmpmaps+=(via_Left via_Both)
   fi
   for km in "${tmpmaps[@]}" ; do
-    ( make SKIP_GIT=yes KEEP_BIN=true COLOR=false "keyball/${kb}:${km}" 2>&1 | tee "${logdir}/${kb}-${km}.log" | LANG=C.utf-8 ts "[${kb}:${km}]" ) &
+    ( python3 "${repo_root}/scripts/build_firmware.py" --qmk-home "${qmk_home}" --keyboard "${kb}" --keymap "${km}" 2>&1 | tee "${logdir}/${kb}-${km}.log" | LANG=C.utf-8 ts "[${kb}:${km}]" ) &
   done
 done
 
 wait
 
-$(dirname "$0")/hexsize.sh keyball_*.hex | tee "${logdir}/size.tsv"
+"${repo_root}/bin/hexsize.sh" "${build_dir}"/keyball_*.hex | tee "${logdir}/size.tsv"

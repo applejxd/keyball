@@ -12,3 +12,11 @@ run = "uv run --locked scripts/generate_keymap_diagram.py --check"
 [tasks."keymap:test"]
 description = "Run Keyball39 emacs tests in QMK 0.22.14 (requires QMK_HOME)"
 run = "uv run scripts/run_keymap_tests.py"
+
+[tasks."keymap:build"]
+description = "Build firmware with Docker into build/ (QMK_HOME or build/qmk)"
+run = "uv run scripts/build_firmware.py --docker"
+
+[tasks."build:test"]
+description = "Test the firmware build helper"
+run = "uv run python -B -m unittest discover -s tests -p test_build_firmware.py"

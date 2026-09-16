@@ -45,18 +45,29 @@ See each directories for each keyboards in a table above.
     $ cd ..
     ```
 
-4. `make` your Keyball firmware.
+4. Build your Keyball firmware from the QMK directory using the repository helper.
 
     ```console
     # Build Keyball39 firmware with "default" keymap
-    $ make SKIP_GIT=yes keyball/keyball39:default
+    $ python3 ../keyball/scripts/build_firmware.py --qmk-home . --keyboard keyball39 --keymap default
 
     # Build Keyball44 firmware with "default" keymap
-    $ make SKIP_GIT=yes keyball/keyball44:default
+    $ python3 ../keyball/scripts/build_firmware.py --qmk-home . --keyboard keyball44 --keymap default
 
     # Build Keyball61 firmware with "default" keymap
-    $ make SKIP_GIT=yes keyball/keyball61:default
+    $ python3 ../keyball/scripts/build_firmware.py --qmk-home . --keyboard keyball61 --keymap default
     ```
+
+    Firmware files are written to the Keyball repository's `build/` directory;
+    intermediate files go into `build/.build/`. Both are ignored by Git.
+    `bin/build-keyball-all.sh` also uses this helper and puts its logs under
+    `build/build_log/`.
+
+    Alternatively, with Docker and the pinned CI image already installed, run
+    `mise run keymap:build` from the Keyball repository. It defaults to
+    `keyball39:emacs` and uses `QMK_HOME`, or `build/qmk/` when unset.
+    See the [Emacs build instructions](keyball39/keymaps/emacs/README.md#ローカルでビルドする場合)
+    for setup and options. The task does not download QMK or Docker images.
 
 There are three keymaps provided at least:
 

@@ -168,6 +168,37 @@ QMK Toolboxでの書き込み・確認手順の案内後に、
 Elonaの標準的な移動設定を想定しています。ゲームの版やキー設定による解釈は実機で確認してください。
 アプリの自動判別・Gameのトグル固定はなく、他のアプリでもこの組み合わせで移動キーを送ります。
 
+## ビルドと書き込み
+
+### ローカルでビルドする場合
+
+**出力先はリポジトリ直下の`build/`です。** HEXは
+`build/keyball_keyball39_emacs.hex`、中間ファイルは`build/.build/`に生成します。
+`build/`全体をGit管理から除外しています。配列図とリファレンスの出力先は従来どおり`docs/`です。
+
+QMK **0.22.14** とサブモジュールを`build/qmk/`に用意し、Dockerを起動して、
+このリポジトリのルートで実行します。
+
+```console
+mise run keymap:build
+```
+
+- 既存のQMKを使う場合は`QMK_HOME`を設定するか、`mise run keymap:build -- --qmk-home <QMKのチェックアウト先>`で指定します。
+- miseタスクはCIと同じ固定Dockerイメージを使い、現在のKeyballソースを直接マウントします。シンボリックリンクの作成は不要です。
+- QMKの場所やビルド環境を切り替えても古い中間ファイルを使わないよう、毎回クリーンビルドします。
+- QMKソースとDockerイメージは自動取得しません。イメージが未導入なら、次のコマンドで明示的に取得してください。
+
+```console
+docker pull ghcr.io/qmk/qmk_cli@sha256:2dc05fc9f32efebd6b05c2b8676ee548358bc7e151e9dbf4dac6b6eed4513b07
+```
+
+QMKソースの準備は[Keyball共通のビルド手順](../../../readme.md#how-to-build)を参照してください。
+ネイティブのQMKビルド環境では、共通手順のシンボリックリンクを作成してから、
+`uv run scripts/build_firmware.py --qmk-home <QMKのチェックアウト先>`を使えます。
+こちらも出力先は`build/`です。`--keyboard`・`--keymap`で対象を変更できます。
+
+ビルド補助スクリプトのテストは`mise run build:test`で実行します。
+
 ## レイヤー構造
 
 ```txt
