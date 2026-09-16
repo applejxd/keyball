@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // VIA を有効化した場合の動的キーマップのレイヤー数
 // see https://mazcon.hatenablog.com/entry/2023/11/10/080000
-#define DYNAMIC_KEYMAP_LAYER_COUNT 5
+#define DYNAMIC_KEYMAP_LAYER_COUNT 6
 
 #define TAP_CODE_DELAY 5
 

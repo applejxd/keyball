@@ -25,6 +25,7 @@
 | 2 | KL_NUMFN | Num/Fn | 左手テンキーと右手ファンクションキー |
 | 3 | KL_EMACS | Emacs | Emacs形式の編集・移動操作と水平スクロール |
 | 4 | KL_CX | C-x | C-x prefixに続く操作 |
+| 5 | KL_GAME | Game | SymbolsとNum/Fnの同時長押し中だけ8方向移動（試験用） |
 
 ## レイヤー操作
 
@@ -105,6 +106,7 @@
 | Num/Fn | Blue |
 | Emacs | Purple |
 | C-x | Magenta |
+| Game | Green |
 
 ## Auto Mouse
 
@@ -145,6 +147,17 @@
 | Win+Shift+F23 | 外部アプリ側の割り当てに依存するショートカット（用途未記録） |
 
 ## 状態遷移・操作フロー
+
+### Game
+
+1. SpaceとEnterを両方長押しするとGameになり、どちらかを離すと解除する。押す順序は自由
+2. SymbolsとNum/Fnの同時有効化で判定するため、Spaceの代わりにセミコロン長押しでも有効になる。ただし、その間は同じ位置のF11を押せない
+3. 左手の7/8/9位置はHome/Up/Page Up、4/6位置はLeft/Right、1/2/3位置はEnd/Down/Page Downを送る
+4. 中央の5位置は誤操作防止で無効。NumLock非依存の待機キーは今回割り当てない
+5. Enterを保持してSpaceを離せば通常数字に戻る。移動キーを離してから数字を押し直す
+6. 右手のF1〜F12はNum/Fnと同じ配置を維持する。NumLockは参照・変更しない
+7. Gameに入るとMarkと選択用Shiftを解除し、抜けてもMarkは復元しない。物理Shiftは維持する
+8. トラックボールはポインター移動、RGBは緑。アプリの自動判別やレイヤーの固定は行わない
 
 ### Combo
 

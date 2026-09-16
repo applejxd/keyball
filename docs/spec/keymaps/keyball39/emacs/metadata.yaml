@@ -21,6 +21,9 @@ layers:
   KL_CX:
     label: C-x
     purpose: C-x prefixに続く操作
+  KL_GAME:
+    label: Game
+    purpose: SymbolsとNum/Fnの同時長押し中だけ8方向移動（試験用）
 
 custom_keys:
   CUT_LINE:
@@ -50,6 +53,15 @@ external_shortcuts:
     purpose: 外部アプリ側の割り当てに依存するショートカット（用途未記録）
 
 workflows:
+  Game:
+    - SpaceとEnterを両方長押しするとGameになり、どちらかを離すと解除する。押す順序は自由
+    - SymbolsとNum/Fnの同時有効化で判定するため、Spaceの代わりにセミコロン長押しでも有効になる。ただし、その間は同じ位置のF11を押せない
+    - 左手の7/8/9位置はHome/Up/Page Up、4/6位置はLeft/Right、1/2/3位置はEnd/Down/Page Downを送る
+    - 中央の5位置は誤操作防止で無効。NumLock非依存の待機キーは今回割り当てない
+    - Enterを保持してSpaceを離せば通常数字に戻る。移動キーを離してから数字を押し直す
+    - 右手のF1〜F12はNum/Fnと同じ配置を維持する。NumLockは参照・変更しない
+    - Gameに入るとMarkと選択用Shiftを解除し、抜けてもMarkは復元しない。物理Shiftは維持する
+    - トラックボールはポインター移動、RGBは緑。アプリの自動判別やレイヤーの固定は行わない
   Combo:
     - 通常入力のロール誤発火を減らすため、短い受付時間と最初の候補キーを起点とするタイマーを使う（設定値はキーマップのconfig.hを参照）
     - 後続の候補キーで受付時間を延長しない。タイマーは別の組の候補キーにも共有される

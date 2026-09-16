@@ -320,6 +320,7 @@ enum keymap_layer {
     KL_NUMFN,     // テンキー(左)・FN(右)レイヤー
     KL_EMACS,     // Emacs レイヤー (C-)
     KL_CX,        // Emacs レイヤー (C-x)
+    KL_GAME,      // Symbols + Num/Fn の間だけ8方向移動
 };
 
 // clang-format off
@@ -360,11 +361,22 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______, _______   , A(KC_F4), _______, G(KC_TAB),                               _______, _______, _______, _______  , _______, 
     _______, _______   , _______ , _______, _______  , _______,             _______, _______, _______, _______, _______  , _______  
   ),
+  [KL_GAME] = LAYOUT_universal(
+    _______, KC_HOME, KC_UP  , KC_PGUP, _______,                       _______, KC_F7, KC_F8, KC_F9, KC_F12,
+    _______, KC_LEFT, XXXXXXX, KC_RGHT, _______,                       _______, KC_F4, KC_F5, KC_F6, KC_F11,
+    _______, KC_END , KC_DOWN, KC_PGDN, _______,                       _______, KC_F1, KC_F2, KC_F3, KC_F10,
+    _______, _______, _______, _______, _______, _______,    _______, _______, _______, _______, _______, _______
+  ),
 };
 
 // clang-format on
 
 layer_state_t layer_state_set_user(layer_state_t state) {
+    state = update_tri_layer_state(state, KL_SMB, KL_NUMFN, KL_GAME);
+    if (state & ((layer_state_t)1 << KL_GAME)) {
+        // ゲーム移動に選択用Shiftを持ち込まない。物理Shiftは維持する。
+        end_mark(true);
+    }
     uint8_t highest_layer = get_highest_layer(state);
 
     if (highest_layer == KL_SMB) {
@@ -398,6 +410,9 @@ layer_state_t layer_state_set_user(layer_state_t state) {
                 break;
             case 4:
                 rgblight_sethsv_noeeprom(HSV_MAGENTA);
+                break;
+            case KL_GAME:
+                rgblight_sethsv_noeeprom(HSV_GREEN);
                 break;
         }
     }

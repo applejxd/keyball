@@ -133,6 +133,28 @@ class EmacsMark : public TestFixture {
         return std::find(std::begin(last_report.keys), std::end(last_report.keys), keycode) != std::end(last_report.keys);
     }
 
+    void use_production_keymap() {
+        set_keymap({});
+        for (uint8_t layer = 0; layer < emacs_keymap_layer_count; ++layer) {
+            for (uint8_t row = 0; row < MATRIX_ROWS; ++row) {
+                for (uint8_t col = 0; col < MATRIX_COLS; ++col) {
+                    add_key(KeymapKey(layer, col, row, pgm_read_word(&emacs_keymaps[layer][row][col])));
+                }
+            }
+        }
+    }
+
+    KeymapKey production_key(uint16_t code, uint8_t layer = 0) {
+        auto found = std::find_if(keymap.begin(), keymap.end(), [=](const KeymapKey& candidate) {
+            return candidate.layer == layer && candidate.code == code;
+        });
+        if (found == keymap.end()) {
+            ADD_FAILURE() << "Missing production key " << code << " on layer " << +layer;
+            return KeymapKey(0, 0, 0, KC_NO);
+        }
+        return *found;
+    }
+
     void TearDown() override {
         if (set_mark_active) {
             tap(abort);
@@ -1214,24 +1236,7 @@ TEST_F(EmacsMark, MetaCustomMacroKeycodesUseTheSameModifierSafePath) {
 }
 
 TEST_F(EmacsMark, MetaPunctuationBindingsAreReachableOnProductionSymbolsLayer) {
-    set_keymap({});
-    for (uint8_t layer = 0; layer < emacs_keymap_layer_count; ++layer) {
-        for (uint8_t row = 0; row < MATRIX_ROWS; ++row) {
-            for (uint8_t col = 0; col < MATRIX_COLS; ++col) {
-                add_key(KeymapKey(layer, col, row, pgm_read_word(&emacs_keymaps[layer][row][col])));
-            }
-        }
-    }
-    auto production_key = [this](uint16_t code, uint8_t layer) {
-        auto found = std::find_if(keymap.begin(), keymap.end(), [=](const KeymapKey& candidate) {
-            return candidate.layer == layer && candidate.code == code;
-        });
-        if (found == keymap.end()) {
-            ADD_FAILURE() << "Missing production key " << code << " on layer " << +layer;
-            return KeymapKey(0, 0, 0, KC_NO);
-        }
-        return *found;
-    };
+    use_production_keymap();
     auto symbols = production_key(LT(1, KC_SPC), 0);
     auto alt = production_key(KC_LALT, 0);
     down(symbols, TAPPING_TERM + 1);
@@ -1261,4 +1266,233 @@ TEST_F(EmacsMark, MetaPunctuationBindingsAreReachableOnProductionSymbolsLayer) {
     tap(production_key(abort_mark, 3));
     layer_off(3);
     EXPECT_FALSE(set_mark_active);
+}
+
+class EmacsGame : public EmacsMark {
+   protected:
+    enum : uint8_t {
+        symbols_layer = 1,
+        numfn_layer = 2,
+        emacs_layer = 3,
+        game_layer = 5,
+    };
+
+    void SetUp() override {
+        EmacsMark::SetUp();
+        use_production_keymap();
+        scan(TAPPING_TERM + 1);
+    }
+
+    KeymapKey space() { return production_key(LT(symbols_layer, KC_SPC)); }
+    KeymapKey enter() { return production_key(LT(numfn_layer, KC_ENT)); }
+
+    void hold_game() {
+        down(enter(), TAPPING_TERM + 1);
+        down(space(), TAPPING_TERM + 1);
+        ASSERT_TRUE(layer_state_is(game_layer));
+    }
+
+    void enable_mark() {
+        auto kana = production_key(LT(emacs_layer, KC_LNG1));
+        down(kana, TAPPING_TERM + 1);
+        tap(production_key(set_mark, emacs_layer));
+        up(kana);
+        ASSERT_TRUE(set_mark_active);
+    }
+
+    void TearDown() override {
+        if (set_mark_active) {
+            layer_on(emacs_layer);
+            tap(production_key(abort_mark, emacs_layer));
+            layer_off(emacs_layer);
+        }
+        EmacsMark::TearDown();
+        EXPECT_FALSE(layer_state_is(game_layer));
+    }
+};
+
+TEST_F(EmacsGame, BothPressAndReleaseOrdersAreMomentary) {
+    for (bool space_first : {false, true}) {
+        for (bool release_first : {false, true}) {
+            SCOPED_TRACE(testing::Message() << "space_first=" << space_first << " release_first=" << release_first);
+            auto first = space_first ? space() : enter();
+            auto second = space_first ? enter() : space();
+            reports.clear();
+            down(first, TAPPING_TERM + 1);
+            EXPECT_FALSE(layer_state_is(game_layer));
+            down(second, TAPPING_TERM + 1);
+            EXPECT_EQ(get_highest_layer(layer_state), game_layer);
+            up(release_first ? first : second);
+            EXPECT_FALSE(layer_state_is(game_layer));
+            EXPECT_TRUE(layer_state_is(QK_LAYER_TAP_GET_LAYER(release_first ? second.code : first.code)));
+            up(release_first ? second : first, TAPPING_TERM + 1);
+            EXPECT_EQ(layer_state, 0);
+            expect_no_key_reports(KC_SPC);
+            expect_no_key_reports(KC_ENT);
+        }
+    }
+}
+
+TEST_F(EmacsGame, NearSimultaneousHoldsWorkInBothOrders) {
+    for (bool space_first : {false, true}) {
+        auto first = space_first ? space() : enter();
+        auto second = space_first ? enter() : space();
+        reports.clear();
+        down(first);
+        down(second, TAPPING_TERM * 2 + 1);
+        EXPECT_TRUE(layer_state_is(game_layer));
+        tap(production_key(KC_E));
+        expect_exact_key_reports(KC_UP, 0);
+        up(second);
+        up(first, TAPPING_TERM + 1);
+        expect_no_key_reports(KC_SPC);
+        expect_no_key_reports(KC_ENT);
+    }
+}
+
+TEST_F(EmacsGame, EightDirectionsUseUnmodifiedNavigationAndCenterIsDisabled) {
+    hold_game();
+    const struct {
+        uint16_t position;
+        uint8_t output;
+    } directions[] = {
+        {KC_W, KC_HOME}, {KC_E, KC_UP}, {KC_R, KC_PGUP},
+        {KC_S, KC_LEFT}, {KC_F, KC_RIGHT},
+        {KC_X, KC_END}, {KC_C, KC_DOWN}, {KC_V, KC_PGDN},
+    };
+    for (const auto& direction : directions) {
+        SCOPED_TRACE(direction.position);
+        reports.clear();
+        auto movement = production_key(direction.position);
+        down(movement, 500);
+        EXPECT_TRUE(has_key(direction.output));
+        up(movement);
+        expect_exact_key_reports(direction.output, 0);
+        expect_no_key_reports(direction.position);
+        expect_no_key_reports(KC_NUM);
+        EXPECT_FALSE(has_key(direction.output));
+    }
+    reports.clear();
+    tap(production_key(KC_D));
+    EXPECT_TRUE(reports.empty());
+}
+
+TEST_F(EmacsGame, ReleasingSpaceRestoresAllDigitsAndKeepsFunctionKeys) {
+    const uint16_t digits[] = {KC_0, KC_1, KC_2, KC_3, KC_4, KC_5, KC_6, KC_7, KC_8, KC_9};
+    hold_game();
+    for (bool game : {true, false}) {
+        if (!game) {
+            up(space());
+        }
+        for (uint8_t code = KC_F1; code <= KC_F12; ++code) {
+            reports.clear();
+            tap(production_key(code, numfn_layer));
+            expect_exact_key_reports(code, 0);
+        }
+    }
+    for (uint16_t code : digits) {
+        reports.clear();
+        tap(production_key(code, numfn_layer));
+        expect_exact_key_reports(code, 0);
+        expect_no_key_reports(KC_NUM);
+    }
+    down(space(), TAPPING_TERM + 1);
+    EXPECT_TRUE(layer_state_is(game_layer));
+    up(space());
+    up(enter());
+    reports.clear();
+    tap(production_key(KC_E));
+    expect_exact_key_reports(KC_E, 0);
+}
+
+TEST_F(EmacsGame, NavigationHeldAcrossLayerExitReleasesWithoutTypingDigit) {
+    hold_game();
+    auto movement = production_key(KC_E);
+    down(movement);
+    reports.clear();
+    up(space());
+    EXPECT_TRUE(has_key(KC_UP));
+    up(movement);
+    EXPECT_FALSE(has_key(KC_UP));
+    expect_no_key_reports(KC_8);
+    reports.clear();
+    tap(movement);
+    expect_exact_key_reports(KC_8, 0);
+}
+
+TEST_F(EmacsGame, SingleThumbActionsAndBackspaceRepeatAreUnchanged) {
+    tap(space(), 20);
+    expect_exact_key_reports(KC_SPC, 0);
+    scan(TAPPING_TERM + 1);
+    reports.clear();
+    tap(enter(), 20);
+    expect_exact_key_reports(KC_ENT, 0);
+    scan(TAPPING_TERM + 1);
+    down(space(), TAPPING_TERM + 1);
+    reports.clear();
+    tap(production_key(KC_W));
+    expect_exact_key_reports(KC_LBRC, 0);
+    EXPECT_FALSE(layer_state_is(game_layer));
+    up(space());
+    reports.clear();
+    auto backspace = production_key(KC_BSPC);
+    down(backspace, 500);
+    EXPECT_TRUE(has_key(KC_BSPC));
+    up(backspace);
+    expect_exact_key_reports(KC_BSPC, 0);
+}
+
+TEST_F(EmacsGame, AlternateSymbolsTriggerAlsoEntersGame) {
+    auto semicolon = production_key(LT(symbols_layer, KC_SCLN));
+    down(semicolon, TAPPING_TERM + 1);
+    down(enter(), TAPPING_TERM + 1);
+    EXPECT_TRUE(layer_state_is(game_layer));
+    reports.clear();
+    tap(production_key(KC_W));
+    expect_exact_key_reports(KC_HOME, 0);
+    up(semicolon);
+    EXPECT_FALSE(layer_state_is(game_layer));
+}
+
+TEST_F(EmacsGame, EnteringGameEndsMarkWithoutRestoringItAfterExit) {
+    enable_mark();
+    hold_game();
+    EXPECT_FALSE(set_mark_active);
+    reports.clear();
+    tap(production_key(KC_E));
+    expect_exact_key_reports(KC_UP, 0);
+    up(space());
+    up(enter());
+    EXPECT_FALSE(set_mark_active);
+    auto kana = production_key(LT(emacs_layer, KC_LNG1));
+    down(kana, TAPPING_TERM + 1);
+    reports.clear();
+    tap(production_key(KC_B));
+    expect_exact_key_reports(KC_LEFT, 0);
+    tap(production_key(set_mark, emacs_layer));
+    reports.clear();
+    tap(production_key(KC_B));
+    expect_exact_key_reports(KC_LEFT, MOD_BIT(KC_RSFT));
+}
+
+TEST_F(EmacsGame, HeldMarkNavigationLosesOnlyAuxiliaryShiftOnEntry) {
+    auto kana = production_key(LT(emacs_layer, KC_LNG1));
+    auto physical_shift = production_key(KC_RSFT);
+    down(kana, TAPPING_TERM + 1);
+    tap(production_key(set_mark, emacs_layer));
+    auto movement = production_key(KC_B);
+    down(movement);
+    up(kana);
+    EXPECT_NE(get_weak_mods() & MOD_BIT(KC_RSFT), 0);
+    down(physical_shift);
+    hold_game();
+    EXPECT_FALSE(set_mark_active);
+    EXPECT_EQ(get_weak_mods() & MOD_BIT(KC_RSFT), 0);
+    EXPECT_EQ(get_mods() & MOD_BIT(KC_RSFT), MOD_BIT(KC_RSFT));
+    up(movement);
+    reports.clear();
+    tap(production_key(KC_E));
+    expect_exact_key_reports(KC_UP, MOD_BIT(KC_RSFT));
+    up(physical_shift);
+    expect_shift(false);
 }
